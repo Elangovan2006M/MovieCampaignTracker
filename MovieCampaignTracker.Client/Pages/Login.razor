@@ -1,0 +1,47 @@
+﻿@page "/login"
+@namespace MovieCampaignTracker.Client.Pages
+@using Microsoft.AspNetCore.Components.Forms
+@using MovieCampaignTracker.Shared
+@using MovieCampaignTracker.Client.Services
+@inject AuthService AuthService
+@inject NavigationManager NavManager
+<link rel="stylesheet" href="css/styles.css" />
+
+<div class="register-container">
+    <h3>Login</h3>
+
+    <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <InputText class="input-field" placeholder="Email" @bind-Value="loginModel.Email" required/>
+        </div>
+
+        <div>
+            <InputText class="input-field" placeholder="Password" type="password" @bind-Value="loginModel.PasswordHash" required/>
+        </div>
+
+        <button class="btn-admin" type="submit">Login</button>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <p class="message">@message</p>
+        }
+    </EditForm>
+</div>
+
+@code {
+    private User loginModel = new();
+    private string message;
+
+    private async Task HandleLogin()
+    {
+        message = await AuthService.Login(loginModel);
+
+        if (message.Contains("Login successful"))
+        {
+            NavManager.NavigateTo("/dashboard");
+        }
+    }
+}

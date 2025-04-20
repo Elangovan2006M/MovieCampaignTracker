@@ -1,0 +1,70 @@
+﻿@page "/register"
+@namespace MovieCampaignTracker.Client.Pages
+@using Microsoft.AspNetCore.Components.Forms
+@using MovieCampaignTracker.Shared
+@using MovieCampaignTracker.Client.Services
+@inject AuthService AuthService
+<link rel="stylesheet" href="css/styles.css" />
+
+<div class="register-container">
+    <h3>Register</h3>
+
+    <EditForm Model="registerModel" OnValidSubmit="HandleRegister">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <InputText placeholder="Email" class="input-field" @bind-Value="registerModel.Email" />
+        </div>
+
+        <div>
+            <InputText placeholder="Password" class="input-field" type="password" @bind-Value="registerModel.PasswordHash" />
+        </div>
+    </EditForm>
+
+    <div class="role-btn-container">
+        <button type="button"
+                class="btn-user @(registerModel.Role == "User" ? "active" : "")"
+                @onclick="HandleUserRegister">
+            Register as User
+        </button>
+
+        <button type="button"
+                class="btn-admin @(registerModel.Role == "Admin" ? "active" : "")"
+                @onclick="HandleAdminRegister">
+            Register as Admin
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <p class="message">@message</p>
+    }
+</div>
+
+@code {
+    private User registerModel = new() { Role = "User" };
+    private string message = string.Empty;
+
+    private async Task HandleRegister()
+    {
+        message = await AuthService.Register(registerModel);
+    }
+
+    private void SetRole(string role)
+    {
+        registerModel.Role = role;
+    }
+
+    private async Task HandleUserRegister()
+    {
+        SetRole("User");
+        await HandleRegister();
+    }
+
+    private async Task HandleAdminRegister()
+    {
+        SetRole("Admin");
+        await HandleRegister();
+    }
+}
