@@ -34,7 +34,7 @@ public class UserController : ControllerBase
 
             return result switch
             {
-                1 => Ok("User registered successfully."),
+                1 => Ok("Registered successfully."),
                 -1 => BadRequest("Registration failed: Email already exists."),
                 _ => BadRequest($"Registration failed: Unexpected result {result}")
             };
