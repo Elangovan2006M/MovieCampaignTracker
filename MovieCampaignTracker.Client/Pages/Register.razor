@@ -10,8 +10,6 @@
     <h3>Register</h3>
 
     <EditForm Model="registerModel" OnValidSubmit="HandleRegister">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
 
         <div>
             <InputText placeholder="Email" class="input-field" @bind-Value="registerModel.Email" />
@@ -19,7 +17,9 @@
 
         <div>
             <InputText placeholder="Password" class="input-field" type="password" @bind-Value="registerModel.PasswordHash" />
+            <ValidationMessage For="@(() => registerModel.PasswordHash)" />
         </div>
+        <DataAnnotationsValidator />
     </EditForm>
 
     <div class="role-btn-container">
