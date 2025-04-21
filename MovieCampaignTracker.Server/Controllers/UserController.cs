@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using MovieCampaignTracker.Server.Data;
-using MovieCampaignTracker.Server.Models;
+using MovieCampaignTracker.Infrastructure;
+using MovieCampaignTracker.Shared;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Dapper;
-
+namespace MovieCampaignTracker.Service.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class UserController : ControllerBase

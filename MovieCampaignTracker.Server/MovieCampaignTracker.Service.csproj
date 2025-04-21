@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MovieCampaignTracker.Client\MovieCampaignTracker.Client.csproj" />
+    <ProjectReference Include="..\MovieCampaignTracker.Infrastructure\MovieCampaignTracker.Infrastructure.csproj" />
     <ProjectReference Include="..\MovieCampaignTracker.Shared\MovieCampaignTracker.Shared.csproj" />
   </ItemGroup>
 
