@@ -1,0 +1,41 @@
+﻿/* Dashboard Heading */
+h1 {
+    color: black;
+    font-weight: bold;
+    font-size: 32px;
+    text-transform: uppercase;
+}
+
+/* Movie Poster Styling */
+.movie-poster {
+    width: 120px;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+.movie-image {
+    width: 50px;
+    height: 60px;
+    border-radius: 10px;
+    margin-right: 10px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+}
+/* KPI Cards */
+.metric-card {
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    background: #f8f9fa;
+    margin-right: 50px;
+    margin-left: 50px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Bar Chart */
+.progress-bar {
+    transition: width 0.6s ease-in-out;
+    background-color: #28a745 !important;
+    height: 20px; /* Ensure visibility */
+}

@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using MovieCampaignTracker.Infrastructure;
+using MovieCampaignTracker.Infrastructure.Data;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
-builder.Services.AddControllersWithViews(); // ✅ Important for Blazor UI
+builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddSingleton<DatabaseHelper>();
 
