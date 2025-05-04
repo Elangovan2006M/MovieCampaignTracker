@@ -1,155 +1,103 @@
-﻿@page "/impressions"
+﻿@page "/dashboard"
 @inject HttpClient Http
-@inject IConfiguration Configuration
+@inject IOptions<MovieSettings> MovieOptions
+
+@using Microsoft.Extensions.Options
+@using MovieCampaignTracker.Shared
+@using System.Globalization
+
 <link rel="stylesheet" href="css/dashboard.css">
 
-@using MovieCampaignTracker.Shared;
+<PageTitle>Dashboard</PageTitle>
 
-<!-- Fetch Movie Thumbnail -->
-@{
-    var movieImageUrl = Configuration["Images:MoviePoster"];
-}
-
-<h1 class="fw-bold mb-1 text-dark">Dash Board</h1>
-<div class="d-flex align-items-center mb-4">
-    <img src="https://pbs.twimg.com/media/GmpJi9RboAABHvg?format=jpg&name=large" alt="Thug Life Poster" class="movie-poster me-3" />
-    <div>
-        <h3 class="fw-bold text-primary">Thug Life</h3>
-    </div>
-</div>
-<!-- Tabs -->
-<ul class="nav nav-pills mb-4">
-    <li class="nav-item">
-        <a class="nav-link active" href="#">Thug Life Movie Release</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#">Thug Life All Song Release</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#">Thug Life Trailer Release</a>
-    </li>
-</ul>
-
-<!-- KPI Cards -->
-<div class="row text-center mb-4">
-    <div class="col metric-card">
-        <h5 class="fw-bold text-success">@TotalViews</h5>
-        <small>🔎 Views</small>
-    </div>
-    <div class="col metric-card">
-        <h5 class="fw-bold text-danger">@TotalLikes</h5>
-        <small>❤️ Likes</small>
-    </div>
-    <div class="col metric-card">
-        <h5 class="fw-bold text-info">@TotalComments</h5>
-        <small>💬 Comments</small>
-    </div>
-    <div class="col metric-card">
-        <h5 class="fw-bold text-warning">@TotalShares</h5>
-        <small>🔄 Shares</small>
-    </div>
-</div>
-
-<!-- Date Filters -->
-<div class="mb-3">
-    @foreach (var date in AvailableDates)
+<div class="p-4 bg-white rounded-xl shadow-md grid grid-cols-4 gap-4">
+    @foreach (var metric in SummaryMetrics)
     {
-        <button class="btn btn-outline-primary date-btn me-1 mb-1" @onclick="() => FilterByDate(date)">📅 @date</button>
-    }
-</div>
-
-<!-- Impression Chart List -->
-<div>
-    @foreach (var entry in FilteredImpressions.OrderByDescending(x => x.Views))
-    {
-        <div class="mb-3 impression-card">
-            <div class="d-flex align-items-center">
-                <img src="https://pbs.twimg.com/media/GmpJi9RboAABHvg?format=jpg&name=large" alt="Thumbnail" class="movie-image" />
-                <div class="flex-grow-1">
-                    <strong class="text-dark">@entry.Name</strong><br />
-                    <small class="text-muted">@entry.Type</small>
-                </div>
-                <h5 class="text-primary fw-bold">@entry.Views</h5>
-            </div>
-            <div class="progress mt-2">
-                <div class="progress-bar bg-success" role="progressbar" style="width: @entry.Views%"></div>
-            </div>
+        <div class="bg-gray-100 rounded-xl p-4 shadow flex flex-col items-center">
+            <h2 class="text-xl font-semibold">@metric.Title</h2>
+            <p class="text-2xl font-bold text-red-600">@metric.Value</p>
         </div>
+    }
+    <div class="col-span-4 flex justify-end mt-4">
+        <img src="@MovieOptions.Value.MovieImageUrl" alt="Movie" class="w-40 h-auto rounded-xl shadow-lg" />
+    </div>
+</div>
+
+<div class="mt-8 bg-white rounded-xl shadow-md p-4">
+    <h3 class="text-xl font-bold mb-4">Daily Insights</h3>
+    <div class="flex flex-wrap gap-2 mb-4">
+        @foreach (var day in DateButtons)
+        {
+            <button @onclick="@(() => LoadMetricsForDate(day))"
+                    class="px-4 py-2 rounded-full border hover:bg-red-100 @(SelectedDate == day ? "bg-red-500 text-white" : "bg-white")">
+                @day.ToString("d MMM", CultureInfo.InvariantCulture)
+            </button>
+        }
+    </div>
+
+    @if (DailyEntries.Any())
+    {
+        <div>
+            @foreach (var entry in DailyEntries)
+            {
+                <div class="mb-2 p-2 bg-gray-100 rounded shadow-sm flex justify-between items-center">
+                    <div>
+                        <strong>@entry.TitleOrText</strong> (<em>@entry.Platform</em>)
+                    </div>
+                    <div class="text-green-600 font-semibold">@entry.ViewCount.ToString("N0") 👁</div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p>No data available for this date.</p>
     }
 </div>
 
 @code {
-    private List<ImpressionItem> AllImpressions = new();
-    private List<ImpressionItem> FilteredImpressions = new();
-    private List<string> AvailableDates = new();
+    private List<SocialMediaMetric> AllMetrics = new();
+    private List<SocialMediaMetric> DailyEntries = new();
+    private List<DateTime> DateButtons = new();
+    private DateTime SelectedDate;
 
-    private int TotalViews, TotalLikes, TotalComments, TotalShares;
+    private List<(string Title, string Value)> SummaryMetrics = new();
 
     protected override async Task OnInitializedAsync()
     {
-        var yt = await Http.GetFromJsonAsync<List<YouTubeMetrics>>("/api/youtube/all");
-        var tw = await Http.GetFromJsonAsync<List<TwitterMetrics>>("/api/twitter/all");
+        AllMetrics = await Http.GetFromJsonAsync<List<SocialMediaMetric>>("api/dashboard/all");
+        DateButtons = AllMetrics.Select(m => m.FetchedAt.Date).Distinct().OrderByDescending(d => d).Take(10).ToList();
 
-        var ytImageUrl = Configuration["Images:YouTubeThumbnail"];
-        var twImageUrl = Configuration["Images:TwitterThumbnail"];
+        SelectedDate = DateButtons.FirstOrDefault();
+        await LoadMetricsForDate(SelectedDate);
 
-        AllImpressions = yt!.Select(x => new ImpressionItem
-            {
-                Name = "YouTube",
-                Type = x.Title,
-                Views = int.TryParse(x.ViewCount, out var v) ? v : 0,
-                Date = x.FetchedAt.ToString("d MMM"),
-                ImageUrl = ytImageUrl,
-                LikeCount = int.Parse(x.LikeCount ?? "0"),
-                CommentCount = int.Parse(x.CommentCount ?? "0")
-            })
-            .Concat(tw!.Select(x => new ImpressionItem
-                {
-                    Name = "Twitter",
-                    Type = x.Text ?? "",
-                    Views = x.LikeCount + x.RetweetCount,
-                    Date = x.FetchedAt.ToString("d MMM"),
-                    ImageUrl = twImageUrl,
-                    LikeCount = x.LikeCount,
-                    CommentCount = x.ReplyCount
-                }))
-            .ToList();
-
-        AvailableDates = AllImpressions.Select(x => x.Date).Distinct().OrderByDescending(x => x).ToList();
-
-        UpdateKPI();
-        FilterByDate(AvailableDates.FirstOrDefault());
+        LoadSummary();
     }
 
-    private void FilterByDate(string? date)
+    private async Task LoadMetricsForDate(DateTime date)
     {
-        FilteredImpressions = AllImpressions
-            .Where(x => x.Date == date)
-            .Select(x =>
-            {
-                x.BarWidth = x.Views * 100 / (AllImpressions.Max(m => m.Views) + 1);
-                return x;
-            })
+        SelectedDate = date;
+        DailyEntries = AllMetrics
+            .Where(m => m.FetchedAt.Date == date)
+            .OrderByDescending(m => m.ViewCount)
+            .Take(10)
             .ToList();
     }
 
-    private void UpdateKPI()
+    private void LoadSummary()
     {
-        TotalViews = AllImpressions.Sum(x => x.Views);
-        TotalLikes = AllImpressions.Sum(x => x.LikeCount);
-        TotalComments = AllImpressions.Sum(x => x.CommentCount);
-        TotalShares = AllImpressions.Sum(x => x.Views / 5); // Estimated share count.
-    }
+        var total = AllMetrics;
 
-    public class ImpressionItem
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Type { get; set; } = string.Empty;
-        public int Views { get; set; }
-        public int BarWidth { get; set; }
-        public string Date { get; set; } = string.Empty;
-        public string ImageUrl { get; set; } = string.Empty;
-        public int LikeCount { get; set; }
-        public int CommentCount { get; set; }
+        SummaryMetrics = new List<(string Title, string Value)>
+        {
+            ("Total Views", total.Sum(m => m.ViewCount).ToString("N0")),
+            ("Total Likes", total.Sum(m => m.LikeCount).ToString("N0")),
+            ("Total Comments", total.Sum(m => m.CommentCount).ToString("N0")),
+            ("Total Shares", total.Sum(m => m.ShareCount).ToString("N0")),
+            ("YouTube Views", total.Where(m => m.Platform == "YouTube").Sum(m => m.ViewCount).ToString("N0")),
+            ("Twitter Views", total.Where(m => m.Platform == "Twitter").Sum(m => m.ViewCount).ToString("N0")),
+            ("Instagram Views", total.Where(m => m.Platform == "Instagram").Sum(m => m.ViewCount).ToString("N0")),
+            ("Facebook Views", total.Where(m => m.Platform == "Facebook").Sum(m => m.ViewCount).ToString("N0")),
+        };
     }
 }

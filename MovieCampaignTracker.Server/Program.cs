@@ -1,16 +1,27 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MovieCampaignTracker.Infrastructure.Data;
+using MovieCampaignTracker.Shared; 
+using System.Data;
+using System.Data.SqlClient;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Bind MovieSettings from config
+builder.Services.Configure<MovieSettings>(
+    builder.Configuration.GetSection("MovieSettings"));
+
 // Add services
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-builder.Services.AddSingleton<DatabaseHelper>();
 
-// JWT Auth
+// Dapper DB connection
+builder.Services.AddScoped<IDbConnection>(sp =>
+    new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<DatabaseHelper>();
+
+// JWT setup
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -29,13 +40,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
-// Use middleware
+// Middleware
 if (app.Environment.IsDevelopment())
 {
-    app.UseWebAssemblyDebugging(); // ✅ optional for better debugging
+    app.UseWebAssemblyDebugging();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -46,7 +58,7 @@ else
 }
 
 app.UseHttpsRedirection();
-app.UseBlazorFrameworkFiles(); // ✅ Required to serve the Blazor WASM app
+app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 app.UseRouting();
 
@@ -55,8 +67,6 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();
-
-// ✅ This ensures Blazor handles all unmatched routes (like /login)
 app.MapFallbackToFile("index.html");
 
 app.Run();

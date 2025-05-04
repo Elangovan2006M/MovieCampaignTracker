@@ -12,11 +12,11 @@
     <EditForm Model="registerModel" OnValidSubmit="HandleRegister">
 
         <div>
-            <InputText placeholder="Email" class="input-field" @bind-Value="registerModel.Email" />
+            <InputText style="width:90%" placeholder="Email" class="input-field" @bind-Value="registerModel.Email" />
         </div>
 
         <div>
-            <InputText placeholder="Password" class="input-field" type="password" @bind-Value="registerModel.PasswordHash" />
+            <InputText style="width:90%" placeholder="Password" class="input-field" type="password" @bind-Value="registerModel.PasswordHash" />
             <ValidationMessage For="@(() => registerModel.PasswordHash)" />
         </div>
         <DataAnnotationsValidator />
