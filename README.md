@@ -11,3 +11,16 @@ CREATE TABLE SocialMediaMetrics (
     ShareCount BIGINT DEFAULT 0,
     FetchedAt DATE NOT NULL
 );
+
+
+SocialMediaPages -- table creation query
+CREATE TABLE SocialMediaPages (
+    Id INT PRIMARY KEY IDENTITY,
+    Platform NVARCHAR(100),
+    PageUrl NVARCHAR(300),
+    PageName NVARCHAR(200),
+    FollowersCount BIGINT,
+    AdminName NVARCHAR(100),
+    AdminMobile NVARCHAR(20)
+);
+for manaul entry by admin when automation not working
