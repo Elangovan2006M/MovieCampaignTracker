@@ -6,7 +6,7 @@ using MovieCampaignTracker.Shared;
 
 namespace MovieCampaignTracker.Infrastructure.Data
 {
-    public class DatabaseHelper
+    public class DatabaseHelper : IDatabaseHelper
     {
         private readonly string _connectionString;
 
@@ -60,6 +60,42 @@ namespace MovieCampaignTracker.Infrastructure.Data
             var query = "SELECT * FROM YouTubeMetrics ORDER BY FetchedAt DESC";
             using var connection = GetConnection();
             return await connection.QueryAsync<YouTubeMetrics>(query);
+        }
+
+        public async Task<IEnumerable<SocialMediaPage>> GetAllSocialMediaPagesAsync()
+        {
+            var query = "SELECT * FROM SocialMediaPages ORDER BY Id DESC";
+            using var connection = GetConnection();
+            return await connection.QueryAsync<SocialMediaPage>(query);
+        }
+
+        public async Task<SocialMediaPage> GetPageByIdAsync(int id)
+        {
+            var query = "SELECT * FROM SocialMediaPages WHERE Id = @Id";
+            using var connection = GetConnection();
+            return await connection.QueryFirstOrDefaultAsync<SocialMediaPage>(query, new { Id = id });
+        }
+
+        public async Task AddPageAsync(SocialMediaPage page)
+        {
+            var query = @"INSERT INTO SocialMediaPages (Platform, PageUrl, PageName, FollowersCount, AdminName, AdminMobile)
+                          VALUES (@Platform, @PageUrl, @PageName, @FollowersCount, @AdminName, @AdminMobile, @ViewCount, @LikeCount, @CommentCount, @ShareCount)";
+            using var connection = GetConnection();
+            await connection.ExecuteAsync(query, page);
+        }
+
+        public async Task UpdatePageAsync(SocialMediaPage page)
+        {
+            var query = @"UPDATE SocialMediaPages SET Platform = @Platform, PageUrl = @PageUrl, PageName = @PageName, FollowersCount = @FollowersCount, AdminName = @AdminName, AdminMobile = @AdminMobile, ViewCount = @ViewCount, LikeCount = @LikeCount, C   CommentCount = @CommentCount, ShareCount = @ShareCount WHERE Id = @Id";
+            using var connection = GetConnection();
+            await connection.ExecuteAsync(query, page);
+        }
+
+        public async Task DeletePageAsync(int id)
+        {
+            var query = "DELETE FROM SocialMediaPages WHERE Id = @Id";
+            using var connection = GetConnection();
+            await connection.ExecuteAsync(query, new { Id = id });
         }
     }
 }

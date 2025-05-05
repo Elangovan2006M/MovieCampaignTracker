@@ -1,0 +1,272 @@
+﻿@page "/admin-social-media"
+
+@using MovieCampaignTracker.Client.Services
+@using MovieCampaignTracker.Shared
+@inject SocialMediaPageService PageService
+<link rel="stylesheet" href="~/css/SocialMedia.css" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<div class="container">
+    <div class="title">Social Media Pages</div>
+
+    <div class="search-container">
+        <div class="search-wrapper">
+            <i class="bi bi-search search-icon"></i>
+            <input @bind="searchTerm" @bind:event="oninput" placeholder="Search" class="search-input" />
+        </div>
+        <button class="btn-add @(isAdding ? "disabled-btn" : "")" @onclick="ShowAddForm" disabled="@isAdding">
+            Add
+        </button>
+    </div>
+
+</div>
+
+<div class="table">
+    <div class="table-head">
+        <div class="sno-gap">S.No</div>
+        <div class="page-gap">Page Details</div>
+        <div class="followers"></div>
+        <div class="admin-gap">Admin Details</div>
+        <div class="actions-gap">Actions</div>
+    </div>
+
+    @if (isAdding)
+    {
+        <div class="table-row input-row">
+            <div class="page-details">
+                    <input @bind="newPage.PageUrl" placeholder="URL" class="add-url" />
+                    <div class="add-details">
+                    <select @bind="newPage.Platform">
+                        <option disabled value="">Select</option>
+                        <option>Facebook</option>
+                        <option>Instagram</option>
+                        <option>Twitter-X</option>
+                        <option>YouTube</option>
+                    </select>
+                    <input @bind="newPage.PageName" placeholder="Username" />
+                    <input @bind="newPage.FollowersCount" type="number" placeholder="Followers" />
+                    </div>
+                </div>
+
+                <div class="admin-details1">
+                    <input @bind="newPage.AdminName" placeholder="Name" />
+                
+                    <input @bind="newPage.AdminMobile" placeholder="Mobile No." />
+                </div>
+                <div class="post-metrics">
+                    <input @bind="newPage.ViewCount" placeholder="Views" />
+                    <input @bind="newPage.LikeCount" placeholder="Likes" />
+                    <input @bind="newPage.CommentCount" placeholder="Views" />
+                    <input @bind="newPage.ShareCount" placeholder="Shares" />
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-success btn-sm" @onclick="AddNewPage">
+                        <i class="bi bi-check"></i>
+                    </button>
+                    <button class="btn btn-danger btn-sm" @onclick="ClearNewPage">
+                        <i class="bi bi-x"></i>
+                    </button>
+            </div>
+        </div>
+
+    }
+
+    <!-- List of Existing Pages -->
+    @foreach (var p in filteredPages)
+    {
+        if (editPage != null && editPage.Id == p.Id)
+        {
+            <div class="table-row input-row">
+                <div class="page-details">
+                <input @bind="editPage.PageUrl" class="add-url" />
+
+                <div class="add-details">
+                    <select @bind="editPage.Platform" class="form-select">
+                        <option><i class="bi bi-facebook"></i>Facebook</option>
+                        <option><i class="bi bi-instagram"></i>Instagram</option>
+                        <option><i class="bi bi-twitter-x"></i>Twitter-X</option>
+                        <option><i class="bi bi-youtube"></i>YouTube</option>
+                    </select>
+
+                    <input @bind="editPage.PageName" class="form-control" />
+                    <input @bind="editPage.FollowersCount" type="number" class="form-control" />
+                </div>
+
+                </div>
+                <div class="admin-details1">
+                    <input @bind="editPage.AdminName" class="form-control" />
+                    <input @bind="editPage.AdminMobile" class="form-control" />
+                </div>
+                <div class="post-metrics">
+                    <input @bind="editPage.ViewCount" placeholder="Views" />
+                    <input @bind="editPage.LikeCount" placeholder="Likes" />
+                    <input @bind="editPage.CommentCount" placeholder="Views" />
+                    <input @bind="editPage.ShareCount" placeholder="Shares" />
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-sm btn-success" @onclick="SaveEditPage"><i class="bi bi-check2 text-success" style="color: green;"></i></button>
+                    <button class="btn btn-sm btn-secondary" @onclick="CancelEdit"><i class="bi bi-x text-danger" style="color: red;"></i></button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="table-row">
+                <div class="sno-gap">@((filteredPages.IndexOf(p)) + 1)</div>
+
+                <div class="page-gap d-flex align-items-center">
+                    <i class="@GetPlatformIconClass(p.Platform) platform-icon me-2"></i>
+                    <span class="page-name">@p.PageName</span>
+                </div>
+
+
+            <div class="followers">@p.FollowersCount</div>
+
+            <div class="admin">
+                <div class="admin-name">@p.AdminName</div>
+                <div style="margin-left:20px;">:</div>
+                <div class="admin-mobile">@p.AdminMobile</div>
+            </div>
+            <div class="metrics-container">
+					<div class="metric">
+						<i class="bi bi-eye"></i>
+						<span>@p.ViewCount</span>
+					</div>
+					<div class="metric">
+						<i class="bi bi-heart"></i>
+						<span>@p.LikeCount</span>
+					</div>
+					<div class="metric">
+						<i class="bi bi-chat"></i>
+						<span>@p.CommentCount</span>
+					</div>
+					<div class="metric">
+						<i class="bi bi-share"></i>
+						<span>@p.ShareCount</span>
+					</div>
+            </div>
+                <div class="actions">
+                    <button class="btn btn-sm btn-warning" @onclick="@(() => EditPage(p))"><i class="bi bi-pencil text-dark" style="color: grey;"></i></button>
+                    <button class="btn btn-sm" @onclick="@(() => DeletePage(p.Id))"><i class="bi bi-trash3 text-dark" style="color: grey;"></i></button>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+
+@code {
+    private List<SocialMediaPage> pages = new();
+    private SocialMediaPage newPage = new();
+    private SocialMediaPage? editPage = null;
+    private string searchTerm = "";
+    private bool isAdding = false;
+
+
+    private List<SocialMediaPage> filteredPages => string.IsNullOrWhiteSpace(searchTerm)
+        ? pages
+        : pages.Where(p =>
+            p.PageName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            p.Platform.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+        ).ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPages();
+    }
+
+    private async Task LoadPages()
+    {
+        pages = await PageService.GetAllPagesAsync();
+    }
+
+    //to show adding form
+    private void ShowAddForm()
+    {
+        isAdding = true;
+    }
+
+    private async Task AddNewPage()
+    {
+        if (!string.IsNullOrWhiteSpace(newPage.PageName))
+        {
+            await PageService.CreatePageAsync(newPage);
+            newPage = new();
+            isAdding = false;
+            await LoadPages();
+        }
+    }
+
+    private void ClearNewPage()
+    {
+        newPage = new();
+        isAdding = false;
+    }
+
+    private void EditPage(SocialMediaPage page)
+    {
+        // Clone the object to avoid direct editing
+        editPage = new SocialMediaPage
+        {
+            Id = page.Id,
+            PageUrl = page.PageUrl,
+            Platform = page.Platform,
+            PageName = page.PageName,
+            FollowersCount = page.FollowersCount,
+            AdminName = page.AdminName,
+            AdminMobile = page.AdminMobile,
+
+			ViewCount = page.ViewCount,
+			LikeCount = page.LikeCount,
+			CommentCount = page.CommentCount,
+			ShareCount = page.ShareCount
+        };
+    }
+
+    private async Task SaveEditPage()
+    {
+        if (editPage != null)
+        {
+            await PageService.UpdatePageAsync(editPage);
+            editPage = null;
+            await LoadPages();
+        }
+    }
+
+    private void CancelEdit()
+    {
+        editPage = null;
+    }
+
+    private async Task DeletePage(int id)
+    {
+        await PageService.DeletePageAsync(id);
+        await LoadPages();
+    }
+
+    private string GetPlatformIcon(string platform)
+    {
+        return platform switch
+        {
+            "Facebook" => "https:cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg",
+            "Instagram" => "https:cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg",
+            "Twitter-X" => "https:cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/x.svg",
+            "YouTube" => "https:cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/youtube.svg",
+            _ => "https:cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/web.svg" // Default icon
+        };
+    }
+
+    private string GetPlatformIconClass(string platform)
+    {
+        return platform switch
+        {
+            "Facebook" => "bi bi-facebook",
+            "Instagram" => "bi bi-instagram",
+            "Twitter-X" => "bi bi-twitter-x",
+            "YouTube" => "bi bi-youtube",
+            _ => "bi bi-globe"
+        };
+    }
+
+}
