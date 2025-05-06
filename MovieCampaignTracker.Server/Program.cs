@@ -12,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<MovieSettings>(
     builder.Configuration.GetSection("MovieSettings"));
 
+
 // Add services
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

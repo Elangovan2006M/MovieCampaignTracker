@@ -1,103 +1,179 @@
 ﻿@page "/dashboard"
 @inject HttpClient Http
-@inject IOptions<MovieSettings> MovieOptions
+@inject Microsoft.Extensions.Options.IOptions<MovieSettings> MovieOptions
 
-@using Microsoft.Extensions.Options
 @using MovieCampaignTracker.Shared
 @using System.Globalization
+<link href="css/Dashboard.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-<link rel="stylesheet" href="css/dashboard.css">
 
 <PageTitle>Dashboard</PageTitle>
 
-<div class="p-4 bg-white rounded-xl shadow-md grid grid-cols-4 gap-4">
-    @foreach (var metric in SummaryMetrics)
-    {
-        <div class="bg-gray-100 rounded-xl p-4 shadow flex flex-col items-center">
-            <h2 class="text-xl font-semibold">@metric.Title</h2>
-            <p class="text-2xl font-bold text-red-600">@metric.Value</p>
-        </div>
-    }
-    <div class="col-span-4 flex justify-end mt-4">
-        <img src="@MovieOptions.Value.MovieImageUrl" alt="Movie" class="w-40 h-auto rounded-xl shadow-lg" />
-    </div>
-</div>
+<div class="dashboard-container">
 
-<div class="mt-8 bg-white rounded-xl shadow-md p-4">
-    <h3 class="text-xl font-bold mb-4">Daily Insights</h3>
-    <div class="flex flex-wrap gap-2 mb-4">
-        @foreach (var day in DateButtons)
+    <h1>Impressions</h1>
+
+    <!-- Top Section: Movie Info -->
+    <div class="movie-info">
+        <h1 class="movie-title">Thug Life</h1>
+        <img src="https://stat4.bollywoodhungama.in/wp-content/uploads/2024/11/Thug-Life.jpeg" alt="Thug Life" class="movie-poster" />
+    </div>
+
+
+
+    <!-- Middle Section: Summary Metrics -->
+    <div class="summary-metrics">
+        @foreach (var metric in SummaryMetrics)
         {
-            <button @onclick="@(() => LoadMetricsForDate(day))"
-                    class="px-4 py-2 rounded-full border hover:bg-red-100 @(SelectedDate == day ? "bg-red-500 text-white" : "bg-white")">
-                @day.ToString("d MMM", CultureInfo.InvariantCulture)
-            </button>
+            <div class="metric-box">
+                <h2>
+                    @if (metric.Title.Contains("View") && !metric.Title.Contains("YouTube") && !metric.Title.Contains("Twitter") && !metric.Title.Contains("Instagram") && !metric.Title.Contains("Facebook"))
+                    {
+                        <i class="fas fa-eye icon" style="color: #4CAF50;"></i>
+                    }
+                    else if (metric.Title.Contains("Like"))
+                    {
+                        <i class="fas fa-thumbs-up icon" style="color: #1AA7EC;"></i>
+                    }
+                    else if (metric.Title.Contains("Comment"))
+                    {
+                        <i class="fas fa-comment icon" style="color: #FFFF00;"></i>
+                    }
+                    else if (metric.Title.Contains("Share"))
+                    {
+                        <i class="fas fa-share icon" style="color: #b100cd;"></i>
+                    }
+                    else if (metric.Title.Contains("YouTube"))
+                    {
+                        <i class="fab fa-youtube icon youtube-icon"></i>
+                    }
+                    else if (metric.Title.Contains("Twitter"))
+                    {
+                        <i class="fab fa-twitter icon twitter-icon"></i>
+                    }
+                    else if (metric.Title.Contains("Instagram"))
+                    {
+                        <i class="fab fa-instagram icon instagram-icon"></i>
+                    }
+                    else if (metric.Title.Contains("Facebook"))
+                    {
+                        <i class="fab fa-facebook icon facebook-icon"></i>
+                    }
+
+                    @metric.Title
+                </h2>
+                <p>@metric.Value</p>
+            </div>
         }
     </div>
 
-    @if (DailyEntries.Any())
-    {
-        <div>
-            @foreach (var entry in DailyEntries)
+
+    <!-- Bottom Section: Daily Insights -->
+    <div class="daily-section">
+        <h3>Daily Insights</h3>
+        <div class="date-buttons">
+            @foreach (var day in DateButtons)
             {
-                <div class="mb-2 p-2 bg-gray-100 rounded shadow-sm flex justify-between items-center">
-                    <div>
-                        <strong>@entry.TitleOrText</strong> (<em>@entry.Platform</em>)
-                    </div>
-                    <div class="text-green-600 font-semibold">@entry.ViewCount.ToString("N0") 👁</div>
-                </div>
+                <button @onclick="@(() => LoadMetricsForDate(day))"
+                        class="date-btn @(SelectedDate == day ? "selected" : "")">
+                    @day.ToString("d MMM", CultureInfo.InvariantCulture)
+                </button>
             }
         </div>
-    }
-    else
-    {
-        <p>No data available for this date.</p>
-    }
+
+        @if (DailyEntries.Any())
+        {
+            <div class="bar-chart">
+                @foreach (var entry in DailyEntries)
+                {
+                    var rawWidth = (entry.ViewCount / (float)MaxViewCount) * 100;
+                    var normalizedWidth = Math.Clamp(rawWidth, 5, 90); // Clamp width between 5% and 90%
+                    <div class="bar-container">
+                        <div class="bar-label">@entry.TitleOrText (@entry.Platform)</div>
+                        <div class="bar-wrapper">
+                            <div class="bar" style="width:@normalizedWidth%"></div>
+                            <div class="bar-value">@entry.ViewCount.ToString("N0") <i class="fas fa-eye icon" style="color: #4CAF50; font-size:small"></i></div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        }
+        else
+        {
+            <p>No data available for this date.</p>
+        }
+    </div>
+
+
 </div>
 
 @code {
+    
     private List<SocialMediaMetric> AllMetrics = new();
     private List<SocialMediaMetric> DailyEntries = new();
     private List<DateTime> DateButtons = new();
     private DateTime SelectedDate;
 
     private List<(string Title, string Value)> SummaryMetrics = new();
+    private int MaxViewCount = 1;
 
     protected override async Task OnInitializedAsync()
     {
         AllMetrics = await Http.GetFromJsonAsync<List<SocialMediaMetric>>("api/dashboard/all");
-        DateButtons = AllMetrics.Select(m => m.FetchedAt.Date).Distinct().OrderByDescending(d => d).Take(10).ToList();
+
+        DateButtons = AllMetrics
+            .Select(m => m.FetchedAt.Date)
+            .Distinct()
+            .OrderByDescending(d => d)
+            .Take(10)
+            .ToList();
 
         SelectedDate = DateButtons.FirstOrDefault();
         await LoadMetricsForDate(SelectedDate);
-
-        LoadSummary();
     }
 
     private async Task LoadMetricsForDate(DateTime date)
     {
         SelectedDate = date;
+
         DailyEntries = AllMetrics
             .Where(m => m.FetchedAt.Date == date)
             .OrderByDescending(m => m.ViewCount)
             .Take(10)
             .ToList();
+
+        MaxViewCount = (int)DailyEntries.Max(m => m.ViewCount);
+
+        LoadSummary(date);
     }
 
-    private void LoadSummary()
+    private void LoadSummary(DateTime filterDate)
     {
-        var total = AllMetrics;
+        var filtered = AllMetrics.Where(m => m.FetchedAt.Date == filterDate.Date);
+
+        var grouped = filtered
+            .GroupBy(m => m.Platform)
+            .Select(g => new
+            {
+                Platform = g.Key,
+                Views = g.Sum(m => m.ViewCount),
+                Likes = g.Sum(m => m.LikeCount),
+                Comments = g.Sum(m => m.CommentCount),
+                Shares = g.Sum(m => m.ShareCount)
+            }).ToList();
 
         SummaryMetrics = new List<(string Title, string Value)>
         {
-            ("Total Views", total.Sum(m => m.ViewCount).ToString("N0")),
-            ("Total Likes", total.Sum(m => m.LikeCount).ToString("N0")),
-            ("Total Comments", total.Sum(m => m.CommentCount).ToString("N0")),
-            ("Total Shares", total.Sum(m => m.ShareCount).ToString("N0")),
-            ("YouTube Views", total.Where(m => m.Platform == "YouTube").Sum(m => m.ViewCount).ToString("N0")),
-            ("Twitter Views", total.Where(m => m.Platform == "Twitter").Sum(m => m.ViewCount).ToString("N0")),
-            ("Instagram Views", total.Where(m => m.Platform == "Instagram").Sum(m => m.ViewCount).ToString("N0")),
-            ("Facebook Views", total.Where(m => m.Platform == "Facebook").Sum(m => m.ViewCount).ToString("N0")),
+            ("Views", grouped.Sum(g => g.Views).ToString("N0")),
+            ("Likes", grouped.Sum(g => g.Likes).ToString("N0")),
+            ("Comments", grouped.Sum(g => g.Comments).ToString("N0")),
+            ("Shares", grouped.Sum(g => g.Shares).ToString("N0")),
+            ("YouTube", grouped.FirstOrDefault(g => g.Platform == "YouTube")?.Views.ToString("N0") ?? "0"),
+            ("Twitter", grouped.FirstOrDefault(g => g.Platform == "Twitter")?.Views.ToString("N0") ?? "0"),
+            ("Instagram", grouped.FirstOrDefault(g => g.Platform == "Instagram")?.Views.ToString("N0") ?? "0"),
+            ("Facebook", grouped.FirstOrDefault(g => g.Platform == "Facebook")?.Views.ToString("N0") ?? "0")
         };
     }
 }

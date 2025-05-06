@@ -12,4 +12,5 @@ namespace MovieCampaignTracker.Shared
         public string MovieImageUrl { get; set; }
     }
 
+
 }
