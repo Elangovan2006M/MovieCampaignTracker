@@ -16,26 +16,23 @@ public class DashboardController : ControllerBase
     }
 
     [HttpGet("all")]
-    public async Task<IActionResult> GetAllMetrics([FromQuery] DateTime? date = null)
+    public async Task<IActionResult> GetAllMetrics([FromQuery] DateTime? date = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
-        string sql;
-        object param;
+        string baseSql = @"SELECT * FROM SocialMediaMetrics WHERE (@FetchedAt IS NULL OR CAST(FetchedAt AS DATE) = @FetchedAt)";
+        string pagedSql = $@"
+        {baseSql}
+        ORDER BY ViewCount DESC
+        OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
 
-        if (date.HasValue)
+        var parameters = new
         {
-            sql = @"SELECT * FROM SocialMediaMetrics 
-                    WHERE FetchedAt = @FetchedAt 
-                    ORDER BY FetchedAt DESC, Platform";
-            param = new { FetchedAt = date.Value.Date };
-        }
-        else
-        {
-            sql = @"SELECT * FROM SocialMediaMetrics 
-                    ORDER BY FetchedAt DESC, Platform";
-            param = null;
-        }
+            FetchedAt = date?.Date,
+            Offset = (pageNumber - 1) * pageSize,
+            PageSize = pageSize
+        };
 
-        var result = await _db.QueryAsync<SocialMediaMetric>(sql, param);
+        var result = await _db.QueryAsync<SocialMediaMetric>(pagedSql, parameters);
         return Ok(result);
     }
+
 }

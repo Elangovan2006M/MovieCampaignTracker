@@ -7,22 +7,18 @@
 <link href="css/Dashboard.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-
 <PageTitle>Dashboard</PageTitle>
 
 <div class="dashboard-container">
-
     <h1>Impressions</h1>
 
-    <!-- Top Section: Movie Info -->
+    <!-- Movie Info -->
     <div class="movie-info">
         <h1 class="movie-title">Thug Life</h1>
         <img src="https://stat4.bollywoodhungama.in/wp-content/uploads/2024/11/Thug-Life.jpeg" alt="Thug Life" class="movie-poster" />
     </div>
 
-
-
-    <!-- Middle Section: Summary Metrics -->
+    <!-- Summary Metrics -->
     <div class="summary-metrics">
         @foreach (var metric in SummaryMetrics)
         {
@@ -68,27 +64,29 @@
         }
     </div>
 
-
-    <!-- Bottom Section: Daily Insights -->
+    <!-- Daily Insights -->
     <div class="daily-section">
-        <h3>Daily Insights</h3>
+        <h3>
+            Daily Insights
+            <button @onclick="ShowOverallInsights" class="overall-btn">Overall</button>
+        </h3>
+
         <div class="date-buttons">
             @foreach (var day in DateButtons)
             {
-                <button @onclick="@(() => LoadMetricsForDate(day))"
-                        class="date-btn @(SelectedDate == day ? "selected" : "")">
+                <button @onclick="@(() => LoadMetricsForDate(day))" class="date-btn @(SelectedDate == day ? "selected" : "")">
                     @day.ToString("d MMM", CultureInfo.InvariantCulture)
                 </button>
             }
         </div>
 
-        @if (DailyEntries.Any())
+        @if (PaginatedEntries.Any())
         {
             <div class="bar-chart">
-                @foreach (var entry in DailyEntries)
+                @foreach (var entry in PaginatedEntries)
                 {
                     var rawWidth = (entry.ViewCount / (float)MaxViewCount) * 100;
-                    var normalizedWidth = Math.Clamp(rawWidth, 5, 90); // Clamp width between 5% and 90%
+                    var normalizedWidth = Math.Clamp(rawWidth, 5, 90);
                     <div class="bar-container">
                         <div class="bar-label">@entry.TitleOrText (@entry.Platform)</div>
                         <div class="bar-wrapper">
@@ -97,7 +95,6 @@
                         </div>
                     </div>
                 }
-
             </div>
         }
         else
@@ -106,18 +103,41 @@
         }
     </div>
 
+    <div class="pagination-container">
+        <div class="pagination">
+            <button @onclick="PrevPage" disabled="@(_currentPage == 1)">
+                <i class="fas fa-angle-double-left"></i>
+            </button>
+
+            @for (int i = 1; i <= _totalPages; i++)
+            {
+                <button @onclick="@(() => GoToPage(i))" class="page-btn @(i == _currentPage ? "selected" : "")">
+                    @i
+                </button>
+            }
+
+            <button @onclick="NextPage" disabled="@(_currentPage == _totalPages)">
+                <i class="fas fa-angle-double-right"></i>
+            </button>
+        </div>
+    </div>
 
 </div>
 
 @code {
-    
     private List<SocialMediaMetric> AllMetrics = new();
     private List<SocialMediaMetric> DailyEntries = new();
+    private List<SocialMediaMetric> PaginatedEntries = new();
     private List<DateTime> DateButtons = new();
     private DateTime SelectedDate;
 
     private List<(string Title, string Value)> SummaryMetrics = new();
     private int MaxViewCount = 1;
+
+    // Pagination
+    private int _currentPage = 1;
+    private int _pageSize = 5;
+    private int _totalPages = 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -134,19 +154,54 @@
         await LoadMetricsForDate(SelectedDate);
     }
 
+    private void GoToPage(int pageNumber)
+    {
+        _currentPage = pageNumber;
+        Paginate();
+    }
+
     private async Task LoadMetricsForDate(DateTime date)
     {
         SelectedDate = date;
+        _currentPage = 1;
 
         DailyEntries = AllMetrics
             .Where(m => m.FetchedAt.Date == date)
             .OrderByDescending(m => m.ViewCount)
-            .Take(10)
             .ToList();
 
-        MaxViewCount = (int)DailyEntries.Max(m => m.ViewCount);
+        MaxViewCount = (int)(DailyEntries.Any() ? DailyEntries.Max(m => m.ViewCount) : 1);
+
+        _totalPages = (int)Math.Ceiling(DailyEntries.Count / (double)_pageSize);
+        Paginate();
 
         LoadSummary(date);
+    }
+
+    private void Paginate()
+    {
+        PaginatedEntries = DailyEntries
+            .Skip((_currentPage - 1) * _pageSize)
+            .Take(_pageSize)
+            .ToList();
+    }
+
+    private void NextPage()
+    {
+        if (_currentPage < _totalPages)
+        {
+            _currentPage++;
+            Paginate();
+        }
+    }
+
+    private void PrevPage()
+    {
+        if (_currentPage > 1)
+        {
+            _currentPage--;
+            Paginate();
+        }
     }
 
     private void LoadSummary(DateTime filterDate)
@@ -175,5 +230,45 @@
             ("Instagram", grouped.FirstOrDefault(g => g.Platform == "Instagram")?.Views.ToString("N0") ?? "0"),
             ("Facebook", grouped.FirstOrDefault(g => g.Platform == "Facebook")?.Views.ToString("N0") ?? "0")
         };
+    }
+
+    private async Task ShowOverallInsights()
+    {
+        SelectedDate = DateTime.MinValue; // Indicator that we are showing overall insights
+        _currentPage = 1;
+
+        DailyEntries = AllMetrics.OrderByDescending(m => m.ViewCount).ToList();
+        MaxViewCount = (int)(DailyEntries.Any() ? DailyEntries.Max(m => m.ViewCount) : 1);
+
+        _totalPages = (int)Math.Ceiling(DailyEntries.Count / (double)_pageSize);
+        Paginate();
+
+        LoadOverallSummary();
+    }
+
+    private void LoadOverallSummary()
+    {
+        var grouped = AllMetrics
+            .GroupBy(m => m.Platform)
+            .Select(g => new
+            {
+                Platform = g.Key,
+                Views = g.Sum(m => m.ViewCount),
+                Likes = g.Sum(m => m.LikeCount),
+                Comments = g.Sum(m => m.CommentCount),
+                Shares = g.Sum(m => m.ShareCount)
+            }).ToList();
+
+        SummaryMetrics = new List<(string Title, string Value)>
+    {
+        ("Overall Views", grouped.Sum(g => g.Views).ToString("N0")),
+        ("Overall Likes", grouped.Sum(g => g.Likes).ToString("N0")),
+        ("Overall Comments", grouped.Sum(g => g.Comments).ToString("N0")),
+        ("Overall Shares", grouped.Sum(g => g.Shares).ToString("N0")),
+        ("Overall YouTube", grouped.FirstOrDefault(g => g.Platform == "YouTube")?.Views.ToString("N0") ?? "0"),
+        ("Overall Twitter", grouped.FirstOrDefault(g => g.Platform == "Twitter")?.Views.ToString("N0") ?? "0"),
+        ("Overall Instagram", grouped.FirstOrDefault(g => g.Platform == "Instagram")?.Views.ToString("N0") ?? "0"),
+        ("Overall Facebook", grouped.FirstOrDefault(g => g.Platform == "Facebook")?.Views.ToString("N0") ?? "0")
+    };
     }
 }
