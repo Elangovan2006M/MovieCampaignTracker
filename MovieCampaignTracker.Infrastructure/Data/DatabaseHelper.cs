@@ -78,7 +78,7 @@ namespace MovieCampaignTracker.Infrastructure.Data
 
         public async Task AddPageAsync(SocialMediaPage page)
         {
-            var query = @"INSERT INTO SocialMediaPages (Platform, PageUrl, PageName, FollowersCount, AdminName, AdminMobile)
+            var query = @"INSERT INTO SocialMediaPages (Platform, PageUrl, PageName, FollowersCount, AdminName, AdminMobile, ViewCount, LikeCount, CommentCount, ShareCount)
                           VALUES (@Platform, @PageUrl, @PageName, @FollowersCount, @AdminName, @AdminMobile, @ViewCount, @LikeCount, @CommentCount, @ShareCount)";
             using var connection = GetConnection();
             await connection.ExecuteAsync(query, page);
@@ -86,7 +86,7 @@ namespace MovieCampaignTracker.Infrastructure.Data
 
         public async Task UpdatePageAsync(SocialMediaPage page)
         {
-            var query = @"UPDATE SocialMediaPages SET Platform = @Platform, PageUrl = @PageUrl, PageName = @PageName, FollowersCount = @FollowersCount, AdminName = @AdminName, AdminMobile = @AdminMobile, ViewCount = @ViewCount, LikeCount = @LikeCount, C   CommentCount = @CommentCount, ShareCount = @ShareCount WHERE Id = @Id";
+            var query = @"UPDATE SocialMediaPages SET Platform = @Platform, PageUrl = @PageUrl, PageName = @PageName, FollowersCount = @FollowersCount, AdminName = @AdminName, AdminMobile = @AdminMobile, ViewCount = @ViewCount, LikeCount = @LikeCount, CommentCount = @CommentCount, ShareCount = @ShareCount WHERE Id = @Id";
             using var connection = GetConnection();
             await connection.ExecuteAsync(query, page);
         }
