@@ -22,7 +22,39 @@
     border-radius: 8px;
 }
 
+.filters-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    background: #f4f4f4;
+    padding: 12px;
+    border-radius: 5px;
+}
 
+.filter-options {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    background: #e3342f;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+    .filter-btn:hover {
+        background: #0056b3;
+    }
+
+    .filter-btn:active {
+        background: #003d80;
+    }
 
 .summary-metrics {
     display: flex;
@@ -109,31 +141,42 @@
 
 .bar-container {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* Ensures title stays left & bar chart right */
+    gap: 20px;
+    width: 100%;
+}
+
+.bar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    width: 100%;
 }
 
 .bar-label {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
+    flex: 1; /* Ensures the label stays on the left */
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .bar-wrapper {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    flex: 5; /* Makes the bar chart take more space on the right */
 }
 
 .bar {
     height: 20px;
-    background-color: #4caf50; /* green bar */
+    background-color: green;
     border-radius: 4px;
-    transition: width 0.4s ease;
 }
 
 .bar-value {
-    min-width: 70px;
-    font-size: 0.9rem;
-    white-space: nowrap;
+    margin-left: 10px;
+    font-weight: bold;
 }
 
 
@@ -202,3 +245,15 @@
     .overall-btn:hover {
         background-color: #45a049; /* Slightly darker green */
     }
+
+
+.platform-icon {
+    font-size: 16px;
+    color: #007bff; /* Adjust icon color */
+}
+
+.title-text {
+    flex-grow: 1;
+    font-weight: bold;
+    color: #333;
+}

@@ -16,6 +16,7 @@ namespace MovieCampaignTracker.Shared
         public long CommentCount { get; set; }
         public long ShareCount { get; set; }
         public DateTime FetchedAt { get; set; }
+        public string Tag { get; set; }
     }
 
 }

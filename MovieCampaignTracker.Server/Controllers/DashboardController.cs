@@ -16,7 +16,7 @@ public class DashboardController : ControllerBase
     }
 
     [HttpGet("all")]
-    public async Task<IActionResult> GetAllMetrics([FromQuery] DateTime? date = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetAllMetrics([FromQuery] DateTime? date = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10000)
     {
         string baseSql = @"SELECT * FROM SocialMediaMetrics WHERE (@FetchedAt IS NULL OR CAST(FetchedAt AS DATE) = @FetchedAt)";
         string pagedSql = $@"
