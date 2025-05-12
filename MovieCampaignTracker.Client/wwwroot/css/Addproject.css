@@ -1,0 +1,120 @@
+﻿.page-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    margin-left: 20px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.btn-danger {
+    background-color: #dc3545 !important; /* Red color */
+    border-color: #dc3545 !important;
+    color: #fff !important;
+    border-radius: 6px; /* Rounded corners */
+}
+
+    .btn-danger:hover {
+        background-color: #c82333 !important;
+        border-color: #bd2130 !important;
+    }
+
+.card {
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    padding: 20px;
+}
+
+    .card .form-container {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .card .form-label {
+        font-weight: bold;
+    }
+
+    .card .form-control {
+        border-radius: 6px;
+        padding: 8px;
+    }
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #212529;
+}
+
+.table-light {
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+    .table-light th {
+        font-weight: bold;
+        text-align: center;
+        padding: 12px;
+        width: 33.3%;
+    }
+
+.table tbody tr td {
+    padding: 12px;
+    text-align: center;
+    vertical-align: middle;
+    width: 33.3%;
+}
+
+.btn-warning {
+    border: none;
+    background: transparent;
+}
+
+.btn-danger {
+    border: none;
+    background: transparent;
+}
+
+.text-center {
+    text-align: center;
+}
+
+
+.update-btn {
+    background-color: #007bff !important; /* Blue color */
+    border-color: #007bff !important;
+    color: #fff !important;
+    padding: 10px;
+    border-radius: 10px; /* Rounded corners */
+}
+
+    .update-btn:hover {
+        background-color: #0056b3 !important;
+        border-color: #004085 !important;
+    }
+
+
+.input-area {
+    width: 20%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ced4da;
+}
+
+.add-btn {
+    background-color: red !important; /* Green color */
+    border-color: orangered !important;
+    color: #fff !important;
+    padding: 5px 10px;
+    border-radius: 10px; /* Rounded corners */
+    margin: 10px 20px;
+
+}
+    .add-btn:hover {
+        background-color: darkred !important;
+        border-color: darkred !important;
+    }

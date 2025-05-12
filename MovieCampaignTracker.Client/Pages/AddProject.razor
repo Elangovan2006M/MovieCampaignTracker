@@ -1,0 +1,158 @@
+﻿@page "/add-project"
+@inject HttpClient Http
+@inject IJSRuntime JS
+<link href="css/AddProject.css" rel="stylesheet" />
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<h3 class="page-title">Project Elements</h3>
+
+<!-- Add Button -->
+<div class="button-container mb-3">
+    <button class="add-btn" @onclick="ShowAddForm">
+   Add
+    </button>
+</div>
+
+<!-- Add/Edit Form -->
+@if (showForm)
+{
+    <div class="card p-3 mb-4 rounded">
+        <div class="form-container d-flex align-items-center justify-content-between">
+            <input class="form-control me-2 rounded" @bind="newProject.ProjectName" placeholder="Enter project name" />
+
+            <input class="form-control me-2 rounded" @bind="newProject.ImageUrl" placeholder="Enter image URL" />
+
+            <button class="update-btn" @onclick="SubmitProject">
+                @(isEditing ? "Update" : "Save")
+            </button>
+        </div>
+    </div>
+}
+
+<!-- Projects Table -->
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>S.No</th>
+            <th>Project Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (projects.Count == 0)
+        {
+            <tr><td colspan="3" class="text-center">No projects available.</td></tr>
+        }
+        else
+        {
+            @foreach (var item in projects.Select((value, index) => new { value, index }))
+            {
+                <tr>
+                    <td>@(item.index + 1)</td>
+                    <td>
+                        @if (editingProjectId == item.value.Id)
+                        {
+                            <div class="dropdown-container d-flex align-items-center justify-content-between">
+                                <input class="input-area" @bind="newProject.ProjectName" placeholder="Enter project name" />
+                                <input class="input-area" @bind="newProject.ImageUrl" placeholder="Enter image URL" />
+                                <button class="update-btn" @onclick="SubmitProject">
+                                    Update
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            @item.value.ProjectName
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-sm me-2 border-0" @onclick="() => EditProject(item.value)">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm border-0" @onclick="() => DeleteProject(item.value.Id)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<ProjectElement> projects = new();
+    private ProjectElement newProject = new();
+    private bool showForm = false;
+    private bool isEditing = false;
+    private int? editingProjectId = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProjects();
+    }
+
+    private void ShowAddForm()
+    {
+        showForm = true;
+        newProject = new();
+        isEditing = false;
+        editingProjectId = null;
+    }
+
+    private async Task LoadProjects()
+    {
+        projects = await Http.GetFromJsonAsync<List<ProjectElement>>("api/ProjectElements");
+    }
+
+    private async Task SubmitProject()
+    {
+        if (!string.IsNullOrWhiteSpace(newProject.ProjectName))
+        {
+            if (isEditing)
+            {
+                await Http.PutAsJsonAsync($"api/ProjectElements/{newProject.Id}", newProject);
+            }
+            else
+            {
+                await Http.PostAsJsonAsync("api/ProjectElements", newProject);
+            }
+
+            await LoadProjects();
+            newProject = new ProjectElement();
+            showForm = false; // Hide adding form after submission
+            isEditing = false;
+            editingProjectId = null;
+        }
+    }
+
+    private void EditProject(ProjectElement project)
+    {
+        newProject = new ProjectElement
+            {
+                Id = project.Id,
+                ProjectName = project.ProjectName,
+                ImageUrl = project.ImageUrl
+            };
+        isEditing = true; // Ensure project is being edited correctly
+        editingProjectId = project.Id; // Open edit mode in the same row
+        showForm = false; // Hide the adding section when editing
+    }
+
+    private async Task DeleteProject(int id)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Are you sure you want to delete this project?");
+        if (confirmed)
+        {
+            await Http.DeleteAsync($"api/ProjectElements/{id}");
+            await LoadProjects();
+        }
+    }
+
+    public class ProjectElement
+    {
+        public int Id { get; set; }
+        public string ProjectName { get; set; }
+        public string ImageUrl { get; set; }
+    }
+}
