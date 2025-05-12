@@ -1,6 +1,5 @@
 ﻿@page "/dashboard"
 @inject HttpClient Http
-@inject Microsoft.Extensions.Options.IOptions<MovieSettings> MovieOptions
 
 @using MovieCampaignTracker.Shared
 @using System.Globalization
@@ -13,10 +12,17 @@
     <h1>Impressions</h1>
 
     <!-- Movie Info -->
-    <div class="movie-info">
-        <h1 class="movie-title">Thug Life</h1>
-        <img src="https://stat4.bollywoodhungama.in/wp-content/uploads/2024/11/Thug-Life.jpeg" alt="Thug Life" class="movie-poster" />
-    </div>
+    @if (AllMetrics?.Any() == true)
+    {
+        var firstMetric = AllMetrics.First();
+
+        <div class="movie-info-container">
+            <div class="movie-info">
+                <h1 class="movie-title">@firstMetric.MovieName</h1>
+                <img src="@firstMetric.ImageUrl" alt="@firstMetric.MovieName" class="movie-poster" />
+            </div>
+        </div>
+    }
 
     <!-- Filters Section -->
     <div class="filters-section">

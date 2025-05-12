@@ -4,24 +4,40 @@
 
 .movie-info {
     display: flex;
+    flex-direction: row; /* Aligns movie title and image side by side */
     align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
+    justify-content: flex-end; /* Positions the content towards the right */
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    text-align: center;
+    position: relative; /* Ensures it stays within Blazor component structure */
 }
 
 .movie-title {
-    font-size: 1.5rem;
+    font-size: 20px;
     font-weight: bold;
-    margin-right: 1rem; /* space between title and image */
+    color: #333;
+    margin-right: 15px; /* Space between text and image */
+    flex-shrink: 0; /* Prevents text from shrinking */
 }
 
 .movie-poster {
-    height: 150px;
-    width: 100px;
-    object-fit: cover; /* maintain aspect ratio and fill box */
-    border-radius: 8px;
+    width: 100px; /* Adjust size as needed */
+    height: auto;
+    border-radius: 10px;
+    flex-shrink: 0; /* Ensures image maintains its size */
 }
 
+/* Container to position the movie-info dynamically */
+.movie-info-container {
+    display: flex;
+    justify-content: flex-end; /* Aligns the box to the right */
+    width: 100%;
+    padding: 20px;
+}
 .filters-section {
     display: flex;
     align-items: center;

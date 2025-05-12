@@ -8,10 +8,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Bind MovieSettings from config
-builder.Services.Configure<MovieSettings>(
-    builder.Configuration.GetSection("MovieSettings"));
-
 
 // Add services
 builder.Services.AddControllersWithViews();

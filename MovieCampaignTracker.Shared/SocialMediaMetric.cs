@@ -17,6 +17,7 @@ namespace MovieCampaignTracker.Shared
         public long ShareCount { get; set; }
         public DateTime FetchedAt { get; set; }
         public string Tag { get; set; }
+        public string ImageUrl { get; set; }
     }
 
 }
