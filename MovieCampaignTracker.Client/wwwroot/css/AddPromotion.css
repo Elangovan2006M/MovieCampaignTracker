@@ -1,0 +1,150 @@
+﻿/* Page Title */
+.page-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    margin-left: 20px;
+}
+
+/* Dropdown Container (Top Right Positioning) */
+.dropdown-container {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+}
+
+/* Dropdown Box */
+.project-dropdown {
+    width: 180px;
+    padding: 5px;
+    border-radius: 6px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    margin-top: 70px;
+}
+
+/* Dropdown Image */
+.dropdown-image {
+    width: 20px;
+    height: 20px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 5px;
+}
+
+/* Button Styling */
+.button-container {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+    border-radius: 6px;
+}
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+
+/* Card Styling */
+.card {
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    padding: 20px;
+}
+
+    .card .form-container {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .card .form-label {
+        font-weight: bold;
+    }
+
+    .card .form-control {
+        border-radius: 6px;
+        padding: 8px;
+    }
+
+/* Table Styling */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #212529;
+}
+
+.table-light {
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+    .table-light th {
+        font-weight: bold;
+        text-align: center;
+        padding: 12px;
+        width: 33.3%;
+    }
+
+.table tbody tr td {
+    padding: 12px;
+    text-align: center;
+    vertical-align: middle;
+    width: 33.3%;
+}
+
+/* Remove Background Colors for Icons */
+.btn-warning, .btn-danger {
+    border: none;
+    background: transparent;
+}
+
+/.text-center {
+    text-align: center;
+}
+
+/* Update Button */
+.update-btn {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+    .update-btn:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+
+/* Input Area */
+.input-area {
+    width: 20%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ced4da;
+}
+
+/* Add Button */
+.add-btn {
+    background-color: red;
+    border-color: orangered;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 10px;
+    margin: 10px 20px;
+}
+
+    .add-btn:hover {
+        background-color: darkred;
+        border-color: darkred;
+    }
