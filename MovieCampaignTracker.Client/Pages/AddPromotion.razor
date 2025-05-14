@@ -1,46 +1,43 @@
 ﻿@page "/promotional-elements"
 @inject HttpClient Http
 @inject IJSRuntime JS
+
 <link href="css/AddPromotion.css" rel="stylesheet" />
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-<div>
-<h3 class="page-title">Promotional Elements</h3>
-</div>
 
-<!-- Project Dropdown (Top Right Corner) -->
-<div class="dropdown-container">
-    <select class="project-dropdown" @bind="selectedProjectId">
-        <option value="" disabled selected>Select a Project</option>
+<h3 class="page-title">Promotional Elements</h3>
+
+<!-- Project Dropdown with Aligned Image -->
+<div class="project-dropdown-container">
+    <select class="form-select project-dropdown" @onchange="OnProjectChanged">
+        <option value="">Select a Project</option>
         @foreach (var project in projectElements)
         {
-            <option value="@project.Id">
-                <div class="dropdown-item">
-                    <img src="@project.ImageUrl" alt="Project Image" class="dropdown-image" />
-                    <span>@project.ProjectName</span>
-                </div>
+            <option value="@project.Id" selected="@(project.Id == selectedProjectId)">
+                @project.ProjectName
             </option>
         }
     </select>
+    @if (selectedProject != null && !string.IsNullOrEmpty(selectedProject.ImageUrl))
+    {
+        <img src="@selectedProject.ImageUrl" class="dropdown-image" alt="Project Image" />
+    }
 </div>
+
+
 
 <!-- Add Button -->
 <div class="button-container mb-3">
-    <button class="add-btn" @onclick="ShowAddForm">
-        Add 
-    </button>
+    <button class="add-btn" @onclick="ShowAddForm">Add</button>
 </div>
 
-<!-- Add/Edit Form -->
-@if (showForm)
+<!-- Add Form (only when adding) -->
+@if (showForm && !isEditing)
 {
     <div class="card p-3 mb-4 rounded">
         <div class="form-container d-flex align-items-center justify-content-between">
             <input class="form-control input-area me-2 rounded" @bind="newPromo.PromotionElement" placeholder="Enter promotion element" />
-
-            <button class="update-btn" @onclick="SubmitPromotion">
-                @(isEditing ? "Update" : "Save")
-            </button>
+            <button class="update-btn" @onclick="SubmitPromotion">Save</button>
         </div>
     </div>
 }
@@ -55,39 +52,41 @@
         </tr>
     </thead>
     <tbody>
-        @if (promotionalElements.Count == 0)
+        @if (promotionalElements.Count == 0 || selectedProjectId == null)
         {
-            <tr><td colspan="3" class="text-center">No promotional elements available.</td></tr>
+            <tr><td colspan="4" class="text-center">No promotional elements available.</td></tr>
         }
         else
         {
-            @foreach (var item in promotionalElements.Select((value, index) => new { value, index }))
+            @foreach (var item in promotionalElements
+           .Where(e => e.ProjectNameId == selectedProjectId)
+           .Select((value, index) => new { value, index }))
             {
+                var project = projectElements.FirstOrDefault(p => p.Id == item.value.ProjectNameId);
                 <tr>
                     <td>@(item.index + 1)</td>
                     <td>
                         @if (editingPromoId == item.value.Id)
                         {
-                            <input class="input-area form-control me-2 rounded" @bind="newPromo.PromotionElement" placeholder="Enter promotion element" />
+                            <input class="input-area form-control me-2 rounded" @bind="newPromo.PromotionElement" />
                         }
                         else
                         {
                             @item.value.PromotionElement
                         }
                     </td>
+               
                     <td>
                         @if (editingPromoId == item.value.Id)
                         {
-                            <button class="update-btn" @onclick="SubmitPromotion">
-                                Update
-                            </button>
+                            <button class="update-btn" @onclick="SubmitPromotion">Update</button>
                         }
                         else
                         {
                             <button class="btn btn-sm btn-warning me-2 border-0" @onclick="() => EditPromotion(item.value)">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-danger border-0" @onclick="() => DeletePromotion(item.value.Id)">
+                            <button class="delete-btn" @onclick="() => DeletePromotion(item.value.Id)">
                                 <i class="bi bi-trash"></i>
                             </button>
                         }
@@ -103,24 +102,31 @@
     private List<ProjectElement> projectElements = new();
     private PromotionalElement newPromo = new();
     private int? selectedProjectId;
+    private ProjectElement selectedProject;
     private bool showForm = false;
     private bool isEditing = false;
     private int? editingPromoId = null;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadPromotionalElements();
         await LoadProjectElements();
+        await LoadPromotionalElements();
     }
 
     private async Task LoadProjectElements()
     {
         projectElements = await Http.GetFromJsonAsync<List<ProjectElement>>("api/ProjectElements");
+        SetSelectedProject();
     }
 
     private async Task LoadPromotionalElements()
     {
         promotionalElements = await Http.GetFromJsonAsync<List<PromotionalElement>>("api/PromotionalElements");
+    }
+
+    private void SetSelectedProject()
+    {
+        selectedProject = projectElements.FirstOrDefault(p => p.Id == selectedProjectId);
     }
 
     private async Task SubmitPromotion()
@@ -143,7 +149,6 @@
             showForm = false;
             isEditing = false;
             editingPromoId = null;
-            selectedProjectId = null;
         }
     }
 
@@ -152,11 +157,14 @@
         newPromo = new PromotionalElement
             {
                 Id = promo.Id,
-                PromotionElement = promo.PromotionElement
+                PromotionElement = promo.PromotionElement,
+                ProjectNameId = promo.ProjectNameId
             };
+        selectedProjectId = promo.ProjectNameId;
+        SetSelectedProject();
         isEditing = true;
         editingPromoId = promo.Id;
-        showForm = false;
+        showForm = false; // prevent top form from showing
     }
 
     private async Task DeletePromotion(int id)
@@ -171,7 +179,16 @@
 
     private void ShowAddForm()
     {
-        showForm = true; // This will trigger the visibility of the add form
+        showForm = true;
+        isEditing = false;
+        editingPromoId = null;
+        newPromo = new PromotionalElement();
+    }
+
+    private void OnProjectChanged(ChangeEventArgs e)
+    {
+        selectedProjectId = int.TryParse(e.Value?.ToString(), out var id) ? id : null;
+        SetSelectedProject();
     }
 
     public class PromotionalElement
@@ -188,4 +205,3 @@
         public string ImageUrl { get; set; }
     }
 }
-
