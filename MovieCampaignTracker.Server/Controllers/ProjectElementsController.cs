@@ -6,8 +6,6 @@ using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
-namespace YourNamespace.Controllers
-{
     [Route("api/[controller]")]
     [ApiController]
     public class ProjectElementsController : ControllerBase
@@ -74,4 +72,4 @@ namespace YourNamespace.Controllers
         public string ProjectName { get; set; }
         public string ImageUrl { get; set; }
     }
-}
+

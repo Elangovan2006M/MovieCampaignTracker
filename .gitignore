@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 *.env
 **/appsettings.Development.json
+
+
+MovieCampaignTracker.Server/appsettings.Development.json

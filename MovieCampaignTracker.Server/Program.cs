@@ -8,6 +8,16 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 
 // Add services
 builder.Services.AddControllersWithViews();
@@ -17,6 +27,9 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<IDbConnection>(sp =>
     new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<DatabaseHelper>();
+
+//builder.Services.AddScoped<ICampaignDatabaseHelper, CampaignDatabaseHelper>();
+
 
 // JWT setup
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -40,6 +53,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
+
+app.UseCors("AllowAll");
 
 // Middleware
 if (app.Environment.IsDevelopment())
