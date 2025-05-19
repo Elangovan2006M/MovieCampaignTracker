@@ -9,6 +9,10 @@
 
 <!-- Project Dropdown with Aligned Image -->
 <div class="project-dropdown-container">
+    @if (selectedProject != null && !string.IsNullOrEmpty(selectedProject.ImageUrl))
+    {
+        <img src="@selectedProject.ImageUrl" class="dropdown-image" alt="Project Image" />
+    }
     <select class="form-select project-dropdown" @onchange="OnProjectChanged">
         <option value="">Select a Project</option>
         @foreach (var project in projectElements)
@@ -18,10 +22,6 @@
             </option>
         }
     </select>
-    @if (selectedProject != null && !string.IsNullOrEmpty(selectedProject.ImageUrl))
-    {
-        <img src="@selectedProject.ImageUrl" class="dropdown-image" alt="Project Image" />
-    }
 </div>
 
 

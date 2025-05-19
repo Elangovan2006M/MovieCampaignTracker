@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace MovieCampaignTracker.Shared
 {
-    // Models/PromotionalElement.cs
     public class PromotionalElement
     {
         public int Id { get; set; }

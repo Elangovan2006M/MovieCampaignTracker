@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace MovieCampaignTracker.Shared
 {
-    // Models/ProjectElement.cs
     public class ProjectElement
     {
         public int Id { get; set; }
