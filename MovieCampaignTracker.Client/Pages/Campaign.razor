@@ -4,7 +4,7 @@
 
 @using MovieCampaignTracker.Shared
 
-<link href="css/Campaign.css" rel="stylesheet" />
+<link href="~/css/Campaign.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
 <PageTitle>Campaign Dashboard</PageTitle>
@@ -57,6 +57,12 @@ else
             }
             @foreach (var campaign in FilteredCampaigns)
             {
+                if (isEditing && editingRowId == campaign.Campaigns.Id)
+                {
+                    @RenderEditorRow()
+                }
+                else
+                {
                 <tr>
                     <td>@campaign.Campaigns.Id</td>
                     <td>@campaign.Campaigns.PromotionalElementName</td>
@@ -89,6 +95,7 @@ else
                         }
                     </td>
                 </tr>
+                }
             }
         </tbody>
     </table>
@@ -232,6 +239,18 @@ else
         }
     }
 
+    void AddMediaPlatform()
+    {
+        editModel.MediaPlatforms.Add(new MediaPlatforms { PlatformName = "", NumberOfPosts = 1 });
+    }
+
+    void RemoveMediaPlatform(int index)
+    {
+        if (index >= 0 && index < editModel.MediaPlatforms.Count)
+            editModel.MediaPlatforms.RemoveAt(index);
+    }
+
+
     RenderFragment RenderEditorRow() => __builder =>
     {
         __builder.OpenElement(0, "tr");
@@ -295,6 +314,65 @@ else
     }));
     __builder.CloseElement();
     __builder.CloseElement();
+
+        __builder.OpenElement(40, "td");
+
+        // Loop through each media platform
+        for (int i = 0; i < editModel.MediaPlatforms.Count; i++)
+        {
+            var platform = editModel.MediaPlatforms[i];
+
+            __builder.OpenElement(41, "div");
+            __builder.AddAttribute(42, "class", "d-flex align-items-center gap-2 mb-1");
+
+            // Platform Name Dropdown
+            __builder.OpenElement(43, "select");
+            __builder.AddAttribute(44, "class", "form-select form-select-sm");
+            __builder.AddAttribute(45, "value", BindConverter.FormatValue(platform.PlatformName));
+            __builder.AddAttribute(46, "onchange", EventCallback.Factory.CreateBinder<string>(
+            this, __value => platform.PlatformName = __value, platform.PlatformName));
+
+            string[] platformOptions = new[] { "Instagram", "Facebook", "YouTube" };
+            foreach (var option in platformOptions)
+            {
+                __builder.OpenElement(47, "option");
+                __builder.AddAttribute(48, "value", option);
+                __builder.AddContent(49, option);
+                __builder.CloseElement();
+            }
+
+            __builder.CloseElement(); // select
+
+            // Number of Posts
+            __builder.OpenElement(50, "input");
+            __builder.AddAttribute(51, "type", "number");
+            __builder.AddAttribute(52, "class", "form-control form-control-sm");
+            __builder.AddAttribute(53, "value", BindConverter.FormatValue(platform.NumberOfPosts));
+            __builder.AddAttribute(54, "onchange", EventCallback.Factory.CreateBinder<int>(
+            this, __value => platform.NumberOfPosts = __value, platform.NumberOfPosts));
+            __builder.CloseElement();
+
+            // Optional: Remove button
+            __builder.OpenElement(55, "button");
+            __builder.AddAttribute(56, "class", "btn btn-sm btn-danger");
+            __builder.AddAttribute(57, "type", "button");
+            __builder.AddAttribute(58, "onclick", EventCallback.Factory.Create(this, () => RemoveMediaPlatform(i)));
+            __builder.AddContent(59, "X");
+            __builder.CloseElement();
+
+            __builder.CloseElement(); // div
+        }
+
+        // Add platform button
+        __builder.OpenElement(60, "button");
+        __builder.AddAttribute(61, "type", "button");
+        __builder.AddAttribute(62, "class", "btn btn-sm btn-secondary mt-1");
+        __builder.AddAttribute(63, "onclick", EventCallback.Factory.Create(this, AddMediaPlatform));
+        __builder.AddContent(64, "+ Add Platform");
+        __builder.CloseElement();
+
+        __builder.CloseElement(); // td
+
 
     __builder.OpenElement(27, "td");
     __builder.OpenElement(28, "button");
