@@ -8,8 +8,8 @@ namespace MovieCampaignTracker.Shared
 {
     public class CampaignWithMediaDto
     {
-        public Campaign Campaign { get; set; }
-        public List<MediaPlatform> MediaPlatforms { get; set; } = new();
+        public Campaigns Campaigns { get; set; }
+        public List<MediaPlatforms> MediaPlatforms { get; set; } = new();
     }
 }
 

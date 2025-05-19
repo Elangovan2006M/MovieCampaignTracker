@@ -1,0 +1,150 @@
+﻿/* Container spacing */
+.page-container {
+    padding: 20px;
+}
+
+/* Search and filter section */
+.search-filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+/* Left part: search box */
+.search-box-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: #f1f1f1;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    width: 300px;
+}
+
+    .search-box-wrapper i {
+        margin-right: 8px;
+        color: #555;
+    }
+
+    .search-box-wrapper input[type="search"] {
+        border: none;
+        outline: none;
+        background: transparent;
+        flex-grow: 1;
+        font-size: 14px;
+    }
+
+/* Right part: filter buttons and add */
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+/* Filter buttons */
+.filter-btn {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    background-color: white;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+    .filter-btn.active,
+    .filter-btn:hover {
+        background-color: #007bff;
+        color: white;
+    }
+
+/* Add button */
+.add-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+    .add-btn i {
+        font-size: 16px;
+    }
+
+    .add-btn:hover {
+        background-color: #218838;
+    }
+
+/* Table styling */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+    .table th,
+    .table td {
+        padding: 12px;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+
+/* Status badges */
+.badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+.media-box {
+    padding: 8px 12px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+    font-size: 14px;
+    text-align: center;
+    min-width: 100px;
+}
+
+
+.duration-container {
+    flex-direction: column;
+}
+
+/* Actions (View/Edit/Delete) */
+.action-icons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+    .action-icons i {
+        cursor: pointer;
+        font-size: 16px;
+        transition: color 0.2s;
+    }
+
+        .action-icons i.fa-pen-to-square:hover {
+            color: #007bff;
+        }
+
+        .action-icons i.fa-trash:hover {
+            color: #dc3545;
+        }
+
+        .action-icons i.fa-arrow-right:hover {
+            color: #17a2b8;
+        }

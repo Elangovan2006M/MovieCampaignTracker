@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Dapper;
 using System.Data;
 using MovieCampaignTracker.Shared;
+using static MovieCampaignTracker.Client.Pages.Campaign;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -20,23 +21,28 @@ public class CampaignController : ControllerBase
     {
         if (_db.State != ConnectionState.Open)
             _db.Open();
+
         using var multi = await _db.QueryMultipleAsync(
             "GetCampaignsByProject",
             new { ProjectId = projectId },
             commandType: CommandType.StoredProcedure);
 
-        // First result set: Campaigns
-        var campaigns = (await multi.ReadAsync<Campaign>()).ToList();
+        var campaignList = (await multi.ReadAsync<Campaigns>()).ToList();
+        var mediaList = (await multi.ReadAsync<MediaPlatforms>()).ToList();
 
-        // Second result set: MediaPlatforms
-        var mediaPlatforms = (await multi.ReadAsync<MediaPlatform>()).ToList();
-
-        return Ok(new
+        // Join campaign and media by CampaignId
+        var result = campaignList.Select(c => new CampaignWithMediaDto
         {
-            campaigns,
-            mediaPlatforms
+            Campaigns = c,
+            MediaPlatforms = mediaList.Where(m => m.CampaignId == c.Id).ToList()
+        }).ToList();
+
+        return Ok(new ApiResponse
+        {
+            Campaigns = result
         });
     }
+
     [HttpPost]
     public async Task<IActionResult> AddCampaign([FromBody] CampaignWithMediaDto dto)
     {
@@ -50,11 +56,11 @@ public class CampaignController : ControllerBase
                 "AddCampaign",
                 new
                 {
-                    PromotionalElementId = dto.Campaign.PromotionalElementId,
-                    ProjectId = dto.Campaign.ProjectId,
-                    StartDate = dto.Campaign.StartDate,
-                    EndDate = dto.Campaign.EndDate,
-                    Status = dto.Campaign.Status
+                    PromotionalElementId = dto.Campaigns.PromotionalElementId,
+                    ProjectId = dto.Campaigns.ProjectId,
+                    StartDate = dto.Campaigns.StartDate,
+                    EndDate = dto.Campaigns.EndDate,
+                    Status = dto.Campaigns.Status
                 },
                 commandType: CommandType.StoredProcedure,
                 transaction: transaction);
@@ -75,7 +81,7 @@ public class CampaignController : ControllerBase
             }
 
             transaction.Commit();
-            return CreatedAtAction(nameof(GetCampaignsByProject), new { projectId = dto.Campaign.ProjectId }, new { campaignId });
+            return CreatedAtAction(nameof(GetCampaignsByProject), new { projectId = dto.Campaigns.ProjectId }, new { campaignId });
         }
         catch (Exception ex)
         {
@@ -97,11 +103,11 @@ public class CampaignController : ControllerBase
                 new
                 {
                     Id = campaignId,
-                    PromotionalElementId = dto.Campaign.PromotionalElementId,
-                    ProjectId = dto.Campaign.ProjectId,
-                    StartDate = dto.Campaign.StartDate,
-                    EndDate = dto.Campaign.EndDate,
-                    Status = dto.Campaign.Status
+                    PromotionalElementId = dto.Campaigns.PromotionalElementId,
+                    ProjectId = dto.Campaigns.ProjectId,
+                    StartDate = dto.Campaigns.StartDate,
+                    EndDate = dto.Campaigns.EndDate,
+                    Status = dto.Campaigns.Status
                 },
                 commandType: CommandType.StoredProcedure,
                 transaction: transaction);

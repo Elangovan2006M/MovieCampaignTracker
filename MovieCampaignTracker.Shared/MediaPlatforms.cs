@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MovieCampaignTracker.Shared
 {
-    public class MediaPlatform
+    public class MediaPlatforms
     {
         public int Id { get; set; }
         public int CampaignId { get; set; }
