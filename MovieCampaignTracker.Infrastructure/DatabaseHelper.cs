@@ -33,114 +33,114 @@ namespace MovieCampaignTracker.Infrastructure.Data
             return await connection.ExecuteAsync(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<(DataTable campaigns, DataTable mediaPlatforms)> GetCampaignsByProjectAsync(int projectId)
-        {
-            using var conn = new SqlConnection(_connectionString);
-            using var cmd = new SqlCommand("GetCampaignsByProject", conn);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@ProjectId", projectId);
+        //public async Task<(DataTable campaigns, DataTable mediaPlatforms)> GetCampaignsByProjectAsync(int projectId)
+        //{
+        //    using var conn = new SqlConnection(_connectionString);
+        //    using var cmd = new SqlCommand("GetCampaignsByProject", conn);
+        //    cmd.CommandType = CommandType.StoredProcedure;
+        //    cmd.Parameters.AddWithValue("@ProjectId", projectId);
 
-            await conn.OpenAsync();
+        //    await conn.OpenAsync();
 
-            using var reader = await cmd.ExecuteReaderAsync();
+        //    using var reader = await cmd.ExecuteReaderAsync();
 
-            var campaigns = new DataTable();
-            campaigns.Load(reader);
+        //    var campaigns = new DataTable();
+        //    campaigns.Load(reader);
 
-            DataTable mediaPlatforms = null;
-            if (await reader.NextResultAsync())
-            {
-                mediaPlatforms = new DataTable();
-                mediaPlatforms.Load(reader);
-            }
+        //    DataTable mediaPlatforms = null;
+        //    if (await reader.NextResultAsync())
+        //    {
+        //        mediaPlatforms = new DataTable();
+        //        mediaPlatforms.Load(reader);
+        //    }
 
-            return (campaigns, mediaPlatforms);
-        }
+        //    return (campaigns, mediaPlatforms);
+        //}
 
-        // Add Campaign, returns new campaign id
-        // Add Campaign and return new ID
-        public async Task<int> AddCampaignAsync(Campaigns campaign)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("AddCampaign", connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@PromotionalElementId", campaign.PromotionalElementId);
-                command.Parameters.AddWithValue("@ProjectId", campaign.ProjectId);
-                command.Parameters.AddWithValue("@StartDate", campaign.StartDate);
-                command.Parameters.AddWithValue("@EndDate", campaign.EndDate);
-                command.Parameters.AddWithValue("@Status", campaign.Status);
+        //// Add Campaign, returns new campaign id
+        //// Add Campaign and return new ID
+        //public async Task<int> AddCampaignAsync(Campaigns campaign)
+        //{
+        //    using (var connection = new SqlConnection(_connectionString))
+        //    using (var command = new SqlCommand("AddCampaign", connection))
+        //    {
+        //        command.CommandType = CommandType.StoredProcedure;
+        //        command.Parameters.AddWithValue("@PromotionalElementId", campaign.PromotionalElementId);
+        //        command.Parameters.AddWithValue("@ProjectId", campaign.ProjectId);
+        //        command.Parameters.AddWithValue("@StartDate", campaign.StartDate);
+        //        command.Parameters.AddWithValue("@EndDate", campaign.EndDate);
+        //        command.Parameters.AddWithValue("@Status", campaign.Status);
 
-                await connection.OpenAsync();
-                var result = await command.ExecuteScalarAsync();
-                return Convert.ToInt32(result);
-            }
-        }
+        //        await connection.OpenAsync();
+        //        var result = await command.ExecuteScalarAsync();
+        //        return Convert.ToInt32(result);
+        //    }
+        //}
 
-        // Add MediaPlatform
-        public async Task AddMediaPlatformAsync(MediaPlatforms mediaPlatform)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("AddMediaPlatform", connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@CampaignId", mediaPlatform.CampaignId);
-                command.Parameters.AddWithValue("@PlatformName", mediaPlatform.PlatformName);
-                command.Parameters.AddWithValue("@NumberOfPosts", mediaPlatform.NumberOfPosts);
+        //// Add MediaPlatform
+        //public async Task AddMediaPlatformAsync(MediaPlatforms mediaPlatform)
+        //{
+        //    using (var connection = new SqlConnection(_connectionString))
+        //    using (var command = new SqlCommand("AddMediaPlatform", connection))
+        //    {
+        //        command.CommandType = CommandType.StoredProcedure;
+        //        command.Parameters.AddWithValue("@CampaignId", mediaPlatform.CampaignId);
+        //        command.Parameters.AddWithValue("@PlatformName", mediaPlatform.PlatformName);
+        //        command.Parameters.AddWithValue("@NumberOfPosts", mediaPlatform.NumberOfPosts);
 
-                await connection.OpenAsync();
-                await command.ExecuteNonQueryAsync();
-            }
-        }
+        //        await connection.OpenAsync();
+        //        await command.ExecuteNonQueryAsync();
+        //    }
+        //}
 
-        // Update Campaign
-        public async Task UpdateCampaignAsync(Campaigns campaign)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("UpdateCampaign", connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@Id", campaign.Id);
-                command.Parameters.AddWithValue("@PromotionalElementId", campaign.PromotionalElementId);
-                command.Parameters.AddWithValue("@ProjectId", campaign.ProjectId);
-                command.Parameters.AddWithValue("@StartDate", campaign.StartDate);
-                command.Parameters.AddWithValue("@EndDate", campaign.EndDate);
-                command.Parameters.AddWithValue("@Status", campaign.Status);
+        //// Update Campaign
+        //public async Task UpdateCampaignAsync(Campaigns campaign)
+        //{
+        //    using (var connection = new SqlConnection(_connectionString))
+        //    using (var command = new SqlCommand("UpdateCampaign", connection))
+        //    {
+        //        command.CommandType = CommandType.StoredProcedure;
+        //        command.Parameters.AddWithValue("@Id", campaign.Id);
+        //        command.Parameters.AddWithValue("@PromotionalElementId", campaign.PromotionalElementId);
+        //        command.Parameters.AddWithValue("@ProjectId", campaign.ProjectId);
+        //        command.Parameters.AddWithValue("@StartDate", campaign.StartDate);
+        //        command.Parameters.AddWithValue("@EndDate", campaign.EndDate);
+        //        command.Parameters.AddWithValue("@Status", campaign.Status);
 
-                await connection.OpenAsync();
-                await command.ExecuteNonQueryAsync();
-            }
-        }
+        //        await connection.OpenAsync();
+        //        await command.ExecuteNonQueryAsync();
+        //    }
+        //}
 
-        // Update MediaPlatform
-        public async Task UpdateMediaPlatformAsync(MediaPlatforms mediaPlatform)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("UpdateMediaPlatform", connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@Id", mediaPlatform.Id);
-                command.Parameters.AddWithValue("@CampaignId", mediaPlatform.CampaignId);
-                command.Parameters.AddWithValue("@PlatformName", mediaPlatform.PlatformName);
-                command.Parameters.AddWithValue("@NumberOfPosts", mediaPlatform.NumberOfPosts);
+        //// Update MediaPlatform
+        //public async Task UpdateMediaPlatformAsync(MediaPlatforms mediaPlatform)
+        //{
+        //    using (var connection = new SqlConnection(_connectionString))
+        //    using (var command = new SqlCommand("UpdateMediaPlatform", connection))
+        //    {
+        //        command.CommandType = CommandType.StoredProcedure;
+        //        command.Parameters.AddWithValue("@Id", mediaPlatform.Id);
+        //        command.Parameters.AddWithValue("@CampaignId", mediaPlatform.CampaignId);
+        //        command.Parameters.AddWithValue("@PlatformName", mediaPlatform.PlatformName);
+        //        command.Parameters.AddWithValue("@NumberOfPosts", mediaPlatform.NumberOfPosts);
 
-                await connection.OpenAsync();
-                await command.ExecuteNonQueryAsync();
-            }
-        }
+        //        await connection.OpenAsync();
+        //        await command.ExecuteNonQueryAsync();
+        //    }
+        //}
 
 
-        // Delete Campaign
-        public async Task DeleteCampaignAsync(int campaignId)
-        {
-            using var conn = new SqlConnection(_connectionString);
-            using var cmd = new SqlCommand("DeleteCampaign", conn);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@CampaignId", campaignId);
+        //// Delete Campaign
+        //public async Task DeleteCampaignAsync(int campaignId)
+        //{
+        //    using var conn = new SqlConnection(_connectionString);
+        //    using var cmd = new SqlCommand("DeleteCampaign", conn);
+        //    cmd.CommandType = CommandType.StoredProcedure;
+        //    cmd.Parameters.AddWithValue("@CampaignId", campaignId);
 
-            await conn.OpenAsync();
-            await cmd.ExecuteNonQueryAsync();
-        }
+        //    await conn.OpenAsync();
+        //    await cmd.ExecuteNonQueryAsync();
+        //}
 
         //// Update Campaign
         //public async Task UpdateCampaignAsync(int id, int promotionalElementId, int projectId, DateTime startDate, DateTime endDate, string status)

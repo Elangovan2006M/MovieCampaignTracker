@@ -1,150 +1,196 @@
-﻿/* Container spacing */
-.page-container {
-    padding: 20px;
+﻿/* General styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9f9f9;
+    margin: 0;
+    padding: 1rem;
+    color: #333;
 }
 
-/* Search and filter section */
-.search-filter-bar {
+h3 {
+    text-align: center;
+    color: #3a3a3a;
+    margin-bottom: 1rem;
+}
+
+/* Toolbar section */
+.toolbar {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
     flex-wrap: wrap;
-    margin-bottom: 20px;
+    gap: 1rem;
 }
 
-/* Left part: search box */
-.search-box-wrapper {
+.toolbar-left {
     display: flex;
     align-items: center;
-    background-color: #f1f1f1;
-    padding: 6px 10px;
-    border-radius: 8px;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.search-box input {
+    padding: 0.5rem;
     border: 1px solid #ccc;
-    width: 300px;
+    border-radius: 6px;
 }
 
-    .search-box-wrapper i {
-        margin-right: 8px;
-        color: #555;
-    }
-
-    .search-box-wrapper input[type="search"] {
-        border: none;
-        outline: none;
-        background: transparent;
-        flex-grow: 1;
-        font-size: 14px;
-    }
-
-/* Right part: filter buttons and add */
-.filter-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 10px;
-}
-
-/* Filter buttons */
-.filter-btn {
-    padding: 6px 12px;
-    border: 1px solid #ccc;
-    background-color: white;
-    border-radius: 20px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-    .filter-btn.active,
-    .filter-btn:hover {
-        background-color: #007bff;
-        color: white;
-    }
-
-/* Add button */
-.add-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background-color: #28a745;
+.search-box button {
+    background-color: #007bff;
     color: white;
     border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 14px;
+    padding: 0.5rem 0.7rem;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
 }
 
-    .add-btn i {
-        font-size: 16px;
-    }
+.status-buttons button {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
 
-    .add-btn:hover {
-        background-color: #218838;
-    }
+.status-buttons button.active {
+    border: 2px solid #7d7c7c;
+    font-weight: bold;
+}
 
-/* Table styling */
-.table {
+.icon-button {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+/* Right-side Add Button */
+.toolbar-right .add-button {
+    background-color: #b31004;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.toolbar-right .add-button:hover {
+    background-color: #218838;
+}
+
+/* Table styles */
+.campaign-table {
+    overflow-x: auto;
+}
+
+.table-container {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
 }
 
-    .table th,
-    .table td {
-        padding: 12px;
-        text-align: left;
-        vertical-align: middle;
-    }
-
-.table-striped tbody tr:nth-of-type(odd) {
-    background-color: #f9f9f9;
+.table-container th, .table-container td {
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    text-align: left;
+    vertical-align: top;
 }
 
-/* Status badges */
-.badge {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 13px;
-}
-
-.media-box {
-    padding: 8px 12px;
+.table-container th {
     background-color: #f0f0f0;
-    border-radius: 8px;
-    box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
-    font-size: 14px;
-    text-align: center;
-    min-width: 100px;
+    font-weight: 600;
 }
 
-
-.duration-container {
-    flex-direction: column;
+/* Modal row (add/edit form) */
+.modal input,
+.modal select {
+    padding: 0.4rem;
+    margin: 0.3rem 0;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
-/* Actions (View/Edit/Delete) */
-.action-icons {
+.modal td {
+    vertical-align: top;
+}
+
+/* Actions buttons inside modal */
+.modal-actions {
     display: flex;
-    gap: 10px;
-    align-items: center;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-    .action-icons i {
-        cursor: pointer;
-        font-size: 16px;
-        transition: color 0.2s;
-    }
+.modal-actions button {
+    padding: 0.4rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
 
-        .action-icons i.fa-pen-to-square:hover {
-            color: #007bff;
-        }
+.modal-actions button:first-child {
+    background-color: #007bff;
+    color: white;
+}
 
-        .action-icons i.fa-trash:hover {
-            color: #dc3545;
-        }
+.modal-actions button:last-child {
+    background-color: #dc3545;
+    color: white;
+}
 
-        .action-icons i.fa-arrow-right:hover {
-            color: #17a2b8;
-        }
+/* Edit/Delete buttons in main list */
+td button {
+    margin: 0.2rem;
+    padding: 0.4rem 0.7rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+td button:nth-child(1) {
+    background-color: #ffc107;
+    color: #000;
+}
+
+td button:nth-child(2) {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+    gap: 1rem;
+}
+
+.pagination button {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.pagination button[disabled] {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-weight: 500;
+}
