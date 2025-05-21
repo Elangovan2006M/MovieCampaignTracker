@@ -64,7 +64,9 @@
             {
                 <tr class="modal">
                     <td><input @bind="newCampaignModel.Campaigns.PromotionalElementId" /></td>
-                    <td><input @bind="newCampaignModel.Campaigns.PromotionalElementName" /></td>
+                    <td><input @bind="newCampaignModel.Campaigns.PromotionalElementName" />
+                        <br />
+                        <input @bind="newCampaignModel.Campaigns.ProjectId" /></td>
                     <td>
                         <input type="date" @bind="newCampaignModel.Campaigns.StartDate" /> - <input type="date" @bind="newCampaignModel.Campaigns.EndDate" />
                         <br/>
@@ -76,19 +78,19 @@
                     </td>
 
                     @* Add section for media platforms *@
+                        <td>
                     @foreach (var platform in newCampaignModel.MediaPlatforms)
                     {
-                        <td>
                             <input placeholder="Platform Name" @bind="platform.PlatformName" /><br/>
                             <input type="number" placeholder="Number of Posts" @bind="platform.NumberOfPosts" />
                             <br/>
-                        </td>
                     }
+                        </td>
                     <button @onclick="AddMediaPlatform">Add Platform</button>
 
                     <td class="modal-actions">
-                            <button @onclick="SaveCampaign">Save</button>
-                            <button @onclick="Cancel">Cancel</button>
+                        <button @onclick="SaveCampaign">Save</button>
+                        <button @onclick="Cancel">Cancel</button>
                     </td>
                 </tr>
             }
@@ -108,10 +110,17 @@
                             }
                         </td>
                         <td>
-                            
-                            <button @onclick="() => EditCampaign(item)">Edit</button>
-                            <button @onclick="() => DeleteCampaign(item.Campaigns.Id)">Delete</button>
-                            
+                            <button class="text-button">
+                                View <span class="arrow-icon"><i class="fas fa-arrow-right"></i></span>
+                            </button>
+                            <br/>
+							@* Add Edit and Delete buttons only for "Planned" status *@
+                            @if (item.Campaigns.Status == "Planned")
+                            {
+                                <button @onclick="() => EditCampaign(item)"><i class="fas fa-pen"></i></button>
+                                <button @onclick="() => DeleteCampaign(item.Campaigns.Id)"><i class="fas fa-trash"></i></button>
+                            }
+
                         </td>
                     </tr>
                 }

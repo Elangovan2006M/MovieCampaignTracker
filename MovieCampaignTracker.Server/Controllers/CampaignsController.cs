@@ -77,7 +77,7 @@ namespace MovieCampaignTracker.Server.Controllers
 
         //POST to add new campaign
         [HttpPost]
-        public async Task<IActionResult> AddCampaign(CampaignWithMediaDto dto)
+        public async Task<IActionResult> AddCampaign([FromBody] CampaignWithMediaDto dto)
         {
             using var connection = GetConnection();
             await connection.OpenAsync();
