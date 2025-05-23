@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MovieCampaignTracker.Infrastructure.Data;
 using MovieCampaignTracker.Shared; 
@@ -8,6 +9,16 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 
 // Add services
 builder.Services.AddControllersWithViews();
@@ -17,6 +28,9 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<IDbConnection>(sp =>
     new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<DatabaseHelper>();
+
+//builder.Services.AddScoped<ICampaignDatabaseHelper, CampaignDatabaseHelper>();
+
 
 // JWT setup
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -39,7 +53,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
+
 var app = builder.Build();
+
+app.UseCors("AllowAll");
 
 // Middleware
 if (app.Environment.IsDevelopment())

@@ -1,0 +1,301 @@
+﻿@page "/campaigns"
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+@using MovieCampaignTracker.Shared
+
+<link href="/css/Campaign.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+
+<h3>Campaign Dashboard</h3>
+
+<div class="toolbar">
+    <!-- Left section: Search + Filters -->
+    <div class="toolbar-left">
+
+        <!-- Search Box -->
+        <div class="search-box">
+            <button @onclick="LoadCampaigns" title="Search">
+                <i class="fas fa-search"></i>
+            </button>
+            <input type="text" @bind="searchTerm" placeholder="Search..." @onkeydown="OnSearchKeyDown" />
+        </div>
+
+        <!-- Filter Icon (Only Icon, you can add functionality later if needed) -->
+        <button class="icon-button" title="Filter Options">
+            <i class="fa-solid fa-sliders"></i>
+
+        </button>
+
+        <!-- Status Dropdown -->
+        <div class="status-buttons">
+            <button class='@GetStatusClass("")' @onclick='() => SetStatusFilter("")'>All Status</button>
+            <button class='@GetStatusClass("Planned")' @onclick='() => SetStatusFilter("Planned")'>Planned</button>
+            <button class='@GetStatusClass("Ongoing")' @onclick='() => SetStatusFilter("Ongoing")'>Ongoing</button>
+            <button class='@GetStatusClass("Completed")' @onclick='() => SetStatusFilter("Completed")'>Completed</button>
+        </div>
+
+    </div>
+
+    <!-- Right section: Add button -->
+    <div class="toolbar-right">
+        <button @onclick="AddCampaign" class="add-button">
+            <i class="fas fa-plus"></i> Add
+        </button>
+    </div>
+</div>
+
+
+<div class="campaign-table">
+    <table class="table-container">
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Promotional Element</th>
+                <th>Duration</th>
+                <th>Media Platforms</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @if (showForm)
+            {
+                <tr class="modal">
+                    <td><input @bind="newCampaignModel.Campaigns.PromotionalElementId" /></td>
+                    <td><input @bind="newCampaignModel.Campaigns.PromotionalElementName" />
+                        <br />
+                        <input @bind="newCampaignModel.Campaigns.ProjectId" /></td>
+                    <td>
+                        <input type="date" @bind="newCampaignModel.Campaigns.StartDate" /> - <input type="date" @bind="newCampaignModel.Campaigns.EndDate" />
+                        <br/>
+                        <select @bind="newCampaignModel.Campaigns.Status">
+                            <option>Planned</option>
+                            <option>Ongoing</option>
+                            <option>Completed</option>
+                        </select>
+                    </td>
+
+                    @* Add section for media platforms *@
+                        <td>
+                    @foreach (var platform in newCampaignModel.MediaPlatforms)
+                    {
+                            <input placeholder="Platform Name" @bind="platform.PlatformName" /><br/>
+                            <input type="number" placeholder="Number of Posts" @bind="platform.NumberOfPosts" />
+                            <br/>
+                    }
+                        </td>
+                    <button @onclick="AddMediaPlatform">Add Platform</button>
+
+                    <td class="modal-actions">
+                        <button @onclick="SaveCampaign">Save</button>
+                        <button @onclick="Cancel">Cancel</button>
+                    </td>
+                </tr>
+            }
+            @if (campaigns?.Count > 0)
+            {
+                @foreach (var item in campaigns)
+                {
+                    <tr>
+                        <td>@item.Campaigns.Id</td>
+                        <td>@item.Campaigns.PromotionalElementName</td>
+                        <td>@item.Campaigns.StartDate.ToShortDateString() - @item.Campaigns.EndDate.ToShortDateString()
+                            <br/>@item.Campaigns.Status</td>
+                        <td>
+                            @foreach (var platform in item.MediaPlatforms)
+                            {
+                                <div>@platform.PlatformName (@platform.NumberOfPosts posts)</div>
+                            }
+                        </td>
+                        <td>
+                            <button class="text-button">
+                                View <span class="arrow-icon"><i class="fas fa-arrow-right"></i></span>
+                            </button>
+                            <br/>
+							@* Add Edit and Delete buttons only for "Planned" status *@
+                            @if (item.Campaigns.Status == "Planned")
+                            {
+                                <button @onclick="() => EditCampaign(item)"><i class="fas fa-pen"></i></button>
+                                <button @onclick="() => DeleteCampaign(item.Campaigns.Id)"><i class="fas fa-trash"></i></button>
+                            }
+
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="7">No campaigns found.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="pagination">
+    <button @onclick="PreviousPage" disabled="@(!CanGoBack)">Previous</button>
+    <span>Page @currentPage of @totalPages</span>
+    <button @onclick="NextPage" disabled="@(!CanGoNext)">Next</button>
+</div>
+
+@code {
+    private List<CampaignWithMediaDto> campaigns;
+    private string selectedStatus = "";
+    private string searchTerm = "";
+    private bool showForm = false;
+    private bool isEditing = false;
+    private CampaignWithMediaDto newCampaignModel = new();
+
+
+    private int currentPage = 1;
+    private int totalPages = 1;
+    private int pageSize = 10;
+
+    private async Task SetStatusFilter(string status)
+    {
+        selectedStatus = status;
+        await LoadCampaigns();
+        // Optionally reload/filter data here
+    }
+    private async Task LoadCampaigns()
+    {
+        var response = await Http.GetFromJsonAsync<ApiResponse>($"api/campaign?page={currentPage}&pageSize={pageSize}&status={selectedStatus}");
+
+        if (response != null)
+        {
+            campaigns = response.Data;
+            totalPages = response.TotalPages;
+        }
+    }
+
+    private bool CanGoBack => currentPage > 1;
+    private bool CanGoNext => currentPage < totalPages;
+
+    private async Task PreviousPage()
+    {
+        if (CanGoBack)
+        {
+            currentPage--;
+            await LoadCampaigns();
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (CanGoNext)
+        {
+            currentPage++;
+            await LoadCampaigns();
+        }
+    }
+
+    private async Task OnSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            currentPage = 1; // Reset page to 1 on new search
+            await LoadCampaigns();
+        }
+    }
+
+    private async Task DeleteCampaign(int id)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm",new Object[] { $"Are you sure you want to delete campaign {id}?" });
+        if (confirmed)
+        {
+            var result = await Http.DeleteAsync($"api/campaign/{id}");
+            if (result.IsSuccessStatusCode)
+            {
+                await LoadCampaigns();
+            }
+        }
+    }
+
+    private void AddCampaign()
+    {
+        newCampaignModel.Campaigns = new Campaigns();
+        newCampaignModel.MediaPlatforms = new List<MediaPlatforms>{};// reset form
+        isEditing = false;
+        showForm = true;
+    }
+    private void AddMediaPlatform()
+    {
+        newCampaignModel.MediaPlatforms.Add(new MediaPlatforms());
+    }
+
+
+    private void EditCampaign(CampaignWithMediaDto campaign)
+    {
+        newCampaignModel = new CampaignWithMediaDto
+            {
+                Campaigns = new Campaigns
+                {
+                    Id = campaign.Campaigns.Id,
+                    StartDate = campaign.Campaigns.StartDate,
+                    EndDate = campaign.Campaigns.EndDate,
+                    Status = campaign.Campaigns.Status,
+                    PromotionalElementName = campaign.Campaigns.PromotionalElementName
+                },
+                MediaPlatforms = campaign.MediaPlatforms
+                    .Select(mp => new MediaPlatforms
+                    {
+                        Id = mp.Id,
+                        PlatformName = mp.PlatformName,
+                        NumberOfPosts = mp.NumberOfPosts
+                    }).ToList()
+            };
+
+        isEditing = true;
+        showForm = true;
+    }
+
+
+    private async Task SaveCampaign()
+    {
+        HttpResponseMessage response;
+        if (isEditing)
+        {
+            response = await Http.PutAsJsonAsync($"api/campaign/{newCampaignModel.Campaigns.Id}", newCampaignModel);
+        }
+        else
+        {
+            response = await Http.PostAsJsonAsync("api/campaign", newCampaignModel);
+        }
+
+        if (response.IsSuccessStatusCode)
+        {
+            showForm = false;
+            await LoadCampaigns();
+        }
+        else
+        {
+            // Optional: Show error
+            Console.WriteLine("Error saving campaign");
+        }
+    }
+
+    private void Cancel()
+    {
+        showForm = false;
+    }
+
+
+
+    private string GetStatusClass(string status)
+    {
+        return selectedStatus == status ? "active" : "";
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCampaigns();
+    }
+
+    public class ApiResponse
+    {
+        public List<CampaignWithMediaDto> Data { get; set; }
+        public int TotalPages { get; set; }
+    }
+}

@@ -1,0 +1,205 @@
+﻿/* General styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9f9f9;
+    margin: 0;
+    padding: 1rem;
+    color: #333;
+}
+
+h3 {
+    text-align: center;
+    color: #3a3a3a;
+    margin-bottom: 1rem;
+}
+
+/* Toolbar section */
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.search-box input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.search-box button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 0.7rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.status-buttons button {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.status-buttons button.active {
+    border: 2px solid #7d7c7c;
+    font-weight: bold;
+}
+
+.icon-button {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+/* Right-side Add Button */
+.toolbar-right .add-button {
+    background-color: #b31004;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.toolbar-right .add-button:hover {
+    background-color: #218838;
+}
+
+/* Table styles */
+.campaign-table {
+    overflow-x: auto;
+}
+
+.table-container {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.table-container th, .table-container td {
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+.table-container th {
+    background-color: #f0f0f0;
+    font-weight: 600;
+}
+
+/* Modal row (add/edit form) */
+.modal input,
+.modal select {
+    padding: 0.4rem;
+    margin: 0.3rem 0;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.modal td {
+    vertical-align: top;
+}
+
+/* Actions buttons inside modal */
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.modal-actions button {
+    padding: 0.4rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+    .modal-actions button:first-child {
+        width: 75%;
+        margin: 0.2rem;
+        padding: 0.4rem 0.7rem;
+        background-color: limegreen;
+        color: white;
+    }
+
+    .modal-actions button:last-child {
+        width: 75%;
+        margin: 0.2rem;
+        padding: 0.4rem 0.7rem;
+        background-color: #dc3545;
+        color: white;
+    }
+
+.text-button{
+    color: dodgerblue
+}
+/* Edit/Delete buttons in main list */
+td button {
+    margin: 0.2rem;
+    padding: 0.4rem 0.7rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+td button:nth-child(1) {
+    background-color: white;
+    color: #000;
+}
+
+td button:nth-child(2) {
+    background-color: white;
+    color: #000;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+    gap: 1rem;
+}
+
+.pagination button {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.pagination button[disabled] {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-weight: 500;
+}

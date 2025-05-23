@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+*.env
+**/appsettings.Development.json
+
+
+MovieCampaignTracker.Server/appsettings.Development.json
